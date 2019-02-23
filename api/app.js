@@ -43,9 +43,7 @@ app.use(function(req, res, next) {
 
 // setup a friendly greeting for the root route
 app.get('/', (req, res) => {
-  res.json({
-      message: 'Welcome to the REST API project!',
-  });
+  res.redirect('/api/courses');
 });
 
 app.use('/api', routes);

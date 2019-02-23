@@ -1,40 +1,48 @@
 import React, { Component } from 'react';
 import './App.css';
-import axios from 'axios';
+import {
+  BrowserRouter as Router,
+  Route,
+  Switch,
+  Redirect,
+} from 'react-router-dom';
 
 import Header  from './elements/Header';
-import CourseDetail  from './components/CourseDetail';
 import Courses  from './components/Courses';
 import CreateCourse  from './components/CreateCourse';
 import UpdateCourse  from './components/UpdateCourse';
+import CourseDetail  from './components/CourseDetail';
 import UserSignIn  from './components/UserSignIn';
 import UserSignUp  from './components/UserSignUp';
 
-const postData = {
-  name: 'gerrit@gmail.com',
-  password: 'gerrit'
-}
-
-try {
-  axios.get('http://localhost:5000/api/courses', postData).then((response) => {
-    console.log(response);
-  })
-} catch(error) {
-  console.log(error)
-}
+// I had some trouble figuring out nested routes within a switch
+// found the solution here: https://stackoverflow.com/questions/41474134/nested-routes-with-react-router-v4
 
 class App extends Component {
   render() {
     return (
-      <div className="App">
-        <Header />
-        <Courses />
-        <CourseDetail />
-        <CreateCourse />
-        <UpdateCourse />
-        <UserSignIn />
-        <UserSignUp />
-      </div>
+      <Router>
+        <div className="App">
+          <Header />
+          <Switch>
+            <Redirect from="/" exact to="/courses" />
+            <Route
+              path="/courses"
+              render={({ match: { url } }) => (
+                <>
+                  <Route exact path={`${url}/`} component={Courses} />
+                  <Route exact path={`${url}/create`} component={CreateCourse} />
+                  <Route exact path={`${url}/detail/:courseId`} component={CourseDetail} />
+                  <Route exact path={`${url}/update/:courseId`} component={UpdateCourse} />
+                </>
+              )}
+            />         
+            <Route exact path="/signin" component={UserSignIn} />
+            <Route exact path="/signup" component={UserSignUp} />
+            {/* <Route component={NoMatch} /> */}
+          </Switch>
+        </div>
+      </Router>
     );
   }
 }
