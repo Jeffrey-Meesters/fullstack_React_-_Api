@@ -1,8 +1,55 @@
 import React, { Component } from 'react';
+import axios from 'axios';
+
+import MaterialsList from '../elements/MaterialListRender';
 
 class CourseDetails extends Component {
+  constructor() {
+    super()
+
+    this.state = {
+      courseData: [],
+      ownerData: [],
+    }
+  }
+
+  getOwner = (usersArray) => {
+    usersArray.forEach(userId => {
+      // TODO this route needs to be created in the API
+      axios.post(`http://localhost:5000/api/users/${userId}`).then((response) => {
+        this.setState({
+          // TODO I think there was somethig with prevState, use that
+          ownerData: [this.state.ownerData, response.data],
+        })
+      })
+    });
+  }
+  componentWillMount() {
+    const postData = {
+      name: 'gerrit@gmail.com',
+      password: 'gerrit'
+    }
+    
+    try {
+      axios.get(`http://localhost:5000/api/courses/${this.props.match.params.courseId}`, postData).then((response) => {
+        this.setState({
+          loading: false,
+          courseData: response.data
+        });
+
+        // this.getOwner(response.data.user);
+
+      }).catch((error) => {
+        console.log('axios', error);
+      })
+    } catch(error) {
+      console.log('url', error)
+    }  
+  }
+
   render() {
-    console.log(this.props.match.courseId);
+    const data = this.state.courseData;
+    console.log(data);
         return (
             <div>
             <div className="actions--bar">
@@ -15,7 +62,7 @@ class CourseDetails extends Component {
               <div className="grid-66">
                 <div className="course--header">
                   <h4 className="course--label">Course</h4>
-                  <h3 className="course--title">Build a Basic Bookcase</h3>
+                  <h3 className="course--title">{data.title}</h3>
                   <p>By Joe Smith</p>
                 </div>
                 <div className="course--description">
@@ -32,21 +79,12 @@ class CourseDetails extends Component {
                   <ul className="course--stats--list">
                     <li className="course--stats--list--item">
                       <h4>Estimated Time</h4>
-                      <h3>14 hours</h3>
+                      <h3>{data.estimatedTime}</h3>
                     </li>
                     <li className="course--stats--list--item">
                       <h4>Materials Needed</h4>
                       <ul>
-                        <li>1/2 x 3/4 inch parting strip</li>
-                        <li>1 x 2 common pine</li>
-                        <li>1 x 4 common pine</li>
-                        <li>1 x 10 common pine</li>
-                        <li>1/4 inch thick lauan plywood</li>
-                        <li>Finishing Nails</li>
-                        <li>Sandpaper</li>
-                        <li>Wood Glue</li>
-                        <li>Wood Filler</li>
-                        <li>Minwax Oil Based Polyurethane</li>
+                        {/* <MaterialsList listItems={data.materialsNeeded} /> */}
                       </ul>
                     </li>
                   </ul>
