@@ -2,8 +2,7 @@ import React, { Component } from 'react';
 import axios from 'axios';
 import { Link } from "react-router-dom";
 
-import MaterialsList from '../elements/MaterialListRender';
-import CourseDescription from '../elements/CourseDescriptionRender';
+import MarkDown from '../elements/MarkDown';
 
 class CourseDetails extends Component {
   constructor() {
@@ -85,7 +84,7 @@ class CourseDetails extends Component {
               <p>By {ownerData.firstName} {ownerData.lastName}</p>
             </div>
             <div className="course--description">
-              <CourseDescription description={courseData.description} />
+              <MarkDown markDown={courseData.description} />
             </div>
           </div>
           <div className="grid-25 grid-right">
@@ -98,7 +97,7 @@ class CourseDetails extends Component {
                 <li className="course--stats--list--item">
                   <h4>Materials Needed</h4>
                   <ul>
-                    <MaterialsList listItems={courseData.materialsNeeded} />
+                    <MarkDown markDown={courseData.materialsNeeded} />
                   </ul>
                 </li>
               </ul>
