@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import axios from 'axios';
+import { Link } from "react-router-dom";
 
 import MaterialsList from '../elements/MaterialListRender';
 import CourseDescription from '../elements/CourseDescriptionRender';
@@ -25,7 +26,7 @@ class CourseDetails extends Component {
           loading: false,
           ownerData: response.data
         });
-        console.log(22, response)
+
       }).catch((error) => {
         console.log('axios', error);
       })
@@ -55,47 +56,58 @@ class CourseDetails extends Component {
   }
 
   render() {
-    const data = this.state.courseData;
-    console.log(data);
-        return (
-            <div>
-            <div className="actions--bar">
-              <div className="bounds">
-                <div className="grid-100"><span><a className="button" href="/update-course.html">Update Course</a><a className="button" href="/yolo">Delete Course</a></span><a
-                    className="button button-secondary" href="index.html">Return to List</a></div>
-              </div>
-            </div>
-            <div className="bounds course--detail">
-              <div className="grid-66">
-                <div className="course--header">
-                  <h4 className="course--label">Course</h4>
-                  <h3 className="course--title">{data.title}</h3>
-                  <p>By Joe Smith</p>
-                </div>
-                <div className="course--description">
-                  <CourseDescription description={data.description} />
-                </div>
-              </div>
-              <div className="grid-25 grid-right">
-                <div className="course--stats">
-                  <ul className="course--stats--list">
-                    <li className="course--stats--list--item">
-                      <h4>Estimated Time</h4>
-                      <h3>{data.estimatedTime}</h3>
-                    </li>
-                    <li className="course--stats--list--item">
-                      <h4>Materials Needed</h4>
-                      <ul>
-                        <MaterialsList listItems={data.materialsNeeded} />
-                      </ul>
-                    </li>
-                  </ul>
-                </div>
-              </div>
+    const courseData = this.state.courseData;
+    const ownerData = this.state.ownerData;
+    return (
+        <div>
+        <div className="actions--bar">
+          <div className="bounds">
+            <div className="grid-100">
+              <span>
+                <Link className="button" to={"courses/update/"+this.props.match.params.courseId}>
+                  Update Course
+                </Link>
+                <Link className="button" to="/yolo">
+                  Delete Course
+                </Link>
+              </span>
+              <Link className="button button-secondary" to="/courses">
+                Return to List
+              </Link>
             </div>
           </div>
-        )
-    }
+        </div>
+        <div className="bounds course--detail">
+          <div className="grid-66">
+            <div className="course--header">
+              <h4 className="course--label">Course</h4>
+              <h3 className="course--title">{courseData.title}</h3>
+              <p>By {ownerData.firstName} {ownerData.lastName}</p>
+            </div>
+            <div className="course--description">
+              <CourseDescription description={courseData.description} />
+            </div>
+          </div>
+          <div className="grid-25 grid-right">
+            <div className="course--stats">
+              <ul className="course--stats--list">
+                <li className="course--stats--list--item">
+                  <h4>Estimated Time</h4>
+                  <h3>{courseData.estimatedTime}</h3>
+                </li>
+                <li className="course--stats--list--item">
+                  <h4>Materials Needed</h4>
+                  <ul>
+                    <MaterialsList listItems={courseData.materialsNeeded} />
+                  </ul>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
 }
 
 export default CourseDetails;
