@@ -87,6 +87,35 @@ router.get('/users', authenticateUser, (req, res, next) => {
     }
 });
 
+// GET /users
+// Route for getting current user
+// authenticateUser: user should be authenticated before this middleware executes
+router.get('/owner/:ownerId', (req, res, next) => {  
+    // authenticateUser
+    // because when the user is authenticated req.currentUser will exist
+    // the status is 200 and return the current user
+    // if (req.currentUser) {
+
+        User.findOne({'id': router.param.ownerId}, (error, owner) => {
+            if (error) {
+                console.warn('error in DB search', error);
+                res.status(401).json({message: 'Owner not found'})
+            }
+
+            if (owner) {
+                res.status(200).json(owner)
+            }
+        })
+    // } else {
+
+    //     // When this happens authentication succeeded, but something went wrong when setting
+    //     // the currentUser on the req object
+    //     console.warn('Auth was succesfull, but User is not found on the request object');
+    //     res.status(404).json({message: 'User not found'});
+
+    // }
+});
+
 // POST /users
 // Route for creating users
 // Validate if all required input exists

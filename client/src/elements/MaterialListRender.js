@@ -1,14 +1,8 @@
 import React from 'react';
+import ReactMarkdown from 'react-markdown';
 
 const MaterialsList = ({listItems}) => {
-    
-    const list = listItems.map((item) =>
-        <li>
-            {item}
-        </li>
-    );
-
-    return list;
+    return <ReactMarkdown source={listItems} />
 }
 
 export default MaterialsList;
