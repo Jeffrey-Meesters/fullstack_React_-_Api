@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import axios from 'axios';
 
 import ErrorList from '../elements/ErrorList'
 
@@ -11,7 +12,10 @@ class CourseForm extends Component {
             description: '',
             estimatedTime: '',
             materialsNeeded: '',
-            error: []
+            error: [],
+            formLocation: '',
+            loading: false,
+            response: []
         }
     }
 
@@ -46,20 +50,80 @@ class CourseForm extends Component {
         }
     }
 
+    componentWillMount() {
+        const currentLocation = this.props.history.location.pathname
+        this.setState({
+            formLocation: currentLocation
+        })
+    }
+
+    submitForm = () => {
+        const currentLocation = this.state.formLocation;
+        let url = '';
+        let method = ''
+
+        switch(currentLocation) {
+            case '/courses/create':
+                url = 'http://localhost:5000/api/courses';
+                method = 'post';
+                break;
+            case `/courses/${this.props.courseId}/detail/update`:
+                url = `http://localhost:5000/api/courses/${this.props.courseId}`;
+                method = 'put';
+                break;
+            default:
+                console.log(currentLocation);
+        }
+
+        const postData = {
+            title: this.state.title,
+            description: this.state.description,
+            estimatedTime: this.state.estimatedTime,
+            materialsNeeded: this.state.materialsNeeded,
+        }
+
+        try {
+            axios({
+                method,
+                url,
+                postData
+            }).then((response) => {
+                this.setState({
+                    loading: false,
+                    response: response
+                });
+                console.log('working response course is saved in DB', response);
+            }).catch((error) => {
+                let errorValues = [error.response.data];
+                this.setState(prevState => ({
+                    error: { ...prevState.error, errorValues }
+                }))
+            })
+        } catch (error) {
+            console.log('url', error)
+        }
+    }
+
     formValidation = () => {
         const currentState = this.state;
-        let emptyValues = [];
+        let errorValues = [];
         Object.keys(currentState).forEach((item) => {
             if (currentState[item] === '') {
-                emptyValues.push({
+                errorValues.push({
                     [item]: `${item} is not filled in`
                 })
             }
         })
 
         this.setState( prevState => ({
-            error: {...prevState.error, emptyValues}
+            error: {...prevState.error, errorValues}
         }))
+
+        if (errorValues.length > 0) {
+            return;
+        }
+
+        this.submitForm()
     }
 
     handleSubmit = (e) => {
@@ -81,8 +145,8 @@ class CourseForm extends Component {
     render() {
         const errorData = this.state.error;
         let errors = [];
-        if (errorData.emptyValues) {
-            errors = errorData.emptyValues.map((error, index) =>
+        if (errorData.errorValues) {
+            errors = errorData.errorValues.map((error, index) =>
                 <ErrorList errorItem={error} key={index} />
             )
         }

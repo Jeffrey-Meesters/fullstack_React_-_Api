@@ -57,13 +57,14 @@ class CourseDetails extends Component {
   render() {
     const courseData = this.state.courseData;
     const ownerData = this.state.ownerData;
+    console.log(this)
     return (
         <div>
         <div className="actions--bar">
           <div className="bounds">
             <div className="grid-100">
               <span>
-                <Link className="button" to={"courses/update/"+this.props.match.params.courseId}>
+                <Link className="button" to={this.props.match.url+"/update"}>
                   Update Course
                 </Link>
                 <Link className="button" to="/yolo">

@@ -33,15 +33,16 @@ class App extends Component {
               path="/courses"
               render={({ match: { url } }) => (
                 <>
-                  <Route exact path={`${url}/`} component={Courses} />
-                  <Route exact path={`${url}/create`} component={CreateCourse} />
-                  <Route exact path={`${url}/detail/:courseId`} component={CourseDetail} />
-                  <Route exact path={`${url}/update/:courseId`} component={UpdateCourse} />
+                  <Route exact path={ `${url}` } component={Courses} />
+                  <Route exact path={ `${url}/create` } component={CreateCourse} />
+                  <Route exact path={ `${url}/:courseId/detail` } component={CourseDetail} />
+                  <Route exact path={ `${url}/:courseId/detail/update` } component={UpdateCourse} />
                 </>
               )}
             />         
             <Route exact path="/signin" component={UserSignIn} />
             <Route exact path="/signup" component={UserSignUp} />
+            <Route exact path="/sigout" />
             {/* <Route component={NoMatch} /> */}
           </Switch>
         </div>

@@ -10,8 +10,8 @@ class Header extends Component {
                         <h1 className="header--logo">Courses</h1>
                     </Link>
                     <nav>
-                        <Link className="signup" to="signup">Sign Up</Link>
-                        <Link className="signin" to="signin">Sign In</Link>
+                        <Link className="signup" to="/signup">Sign Up</Link>
+                        <Link className="signin" to="/signin">Sign In</Link>
                     </nav>
                 </div>
             </div>

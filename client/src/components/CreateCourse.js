@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 
-import CourseForm from './courseForm'
+import CourseForm from './courseForm';
 
 class CreateCourse extends Component {
     render() {
