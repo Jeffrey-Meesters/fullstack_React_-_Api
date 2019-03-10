@@ -20,7 +20,6 @@ class UpdateCourse extends Component {
           loading: false,
           ownerData: response.data
         });
-
       }).catch((error) => {
         console.log('axios', error);
       })
@@ -47,6 +46,7 @@ class UpdateCourse extends Component {
   }
 
   render() {
+    console.log(this.state.ownerData)
     return (
       <div className="bounds course--detail">
         <h1>Update Course</h1>

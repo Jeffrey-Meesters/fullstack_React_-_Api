@@ -4,7 +4,6 @@ const ErrorList = (errorObject) => {
     let errorItems = []
     const errors = errorObject.errorObject;
     errorItems = errors.map((error, index) => {
-        console.log(Object.values(error)[0])
         return <li key={index}>{Object.values(error)[0]}</li>;
     });
 

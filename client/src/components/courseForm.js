@@ -16,7 +16,6 @@ class CourseForm extends Component {
             formLocation: '',
             loading: false,
             response: [],
-            loadedCourseData: [],
             loadedOwenerData: []
         }
 
@@ -56,30 +55,34 @@ class CourseForm extends Component {
 
     // I had some trouble getting the course data into the form
     // Looked into lifecycles and found this solution: https://reactjs.org/docs/react-component.html
-    // for componendDidUpdate
+    // for componendDidUpdate not getting stuck in a loop
     componentDidUpdate(prevProps) {
         if (this.props.courseData !== prevProps.courseData) {
             const courseData = this.props.courseData;
-            console.log(this.props)
-            const currentLocation = this.props.history.location.pathname
-    
             this.setState({
-                formLocation: currentLocation,
                 title: courseData.title,
                 description: courseData.description,
                 estimatedTime: courseData.estimatedTime,
                 materialsNeeded: courseData.materialsNeeded,
             })
         }
+
+        if (this.props.ownerData !== prevProps.ownerData) {
+            const ownerData = this.props.ownerData;
+
+            this.setState({
+                loadedOwenerData: ownerData
+            })
+        }
     }
 
     componentDidMount() {
-        const courseData = this.props.courseData;
-        console.log(this.props)
         const currentLocation = this.props.history.location.pathname
-
+        const buttonText = (currentLocation === '/courses/create') ? 'Create' : 'Update';
+        console.log(this.props)
         this.setState({
             formLocation: currentLocation,
+            buttonText: buttonText
         })
     }
 
@@ -102,17 +105,25 @@ class CourseForm extends Component {
         }
 
         const postData = {
+            user: [this.state.loadedOwenerData._id],
             title: this.state.title,
             description: this.state.description,
             estimatedTime: this.state.estimatedTime,
             materialsNeeded: this.state.materialsNeeded,
         }
 
+        const auth = {
+            username: 'Jeffrey@smith.com',
+            password:'testt'
+        }
+
+        console.log(postData)
         try {
             axios({
                 method,
                 url,
-                postData
+                auth,
+                data: postData,
             }).then((response) => {
                 this.setState({
                     loading: false,
@@ -171,11 +182,17 @@ class CourseForm extends Component {
     render() {
         const errorData = this.state.error;
         let errorList = [];
+        let Owner = [];
 
         if (errorData.errorValues) {
-            console.log(errorData.errorValues)
             const errorObject = errorData.errorValues;
             errorList = <ErrorList errorObject={errorObject} />;
+        }
+
+        if (this.state.loadedOwenerData) {
+            Owner = <p>By {this.state.loadedOwenerData.firstName} {this.state.loadedOwenerData.lastName}</p>;
+        } else {
+            // it is currentUser
         }
 
         return (
@@ -188,7 +205,7 @@ class CourseForm extends Component {
                             <div>
                                 <input id="title" name="title" type="text" className="input-title course--title--input" placeholder="Course title..." onChange={this.inputChange} defaultValue={this.state.title}/>
                             </div>
-                            <p>By Joe Smith</p>
+                            {Owner}
                         </div>
                         <div className="course--description">
                             <div>
@@ -216,7 +233,7 @@ class CourseForm extends Component {
                     </div>
                     <div className="grid-100 pad-bottom">
                         <button className="button" type="submit">
-                            Create Course
+                            {this.state.buttonText} Course
                         </button>
                         <button type="button" className="button button-secondary" onClick={this.handleCancel}>
                             Cancel

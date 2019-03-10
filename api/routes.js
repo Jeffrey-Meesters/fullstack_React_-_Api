@@ -238,8 +238,13 @@ router.put('/courses/:id', [
 ], 
 authenticateUser, 
 (req, res, next) => {
-
-    if (!req.course.user || !req.course.title || !req.course.description) {
+    console.log('reqy', req);
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        const errorMessages = errors.array().map(error => error.msg);
+        res.status(400);
+        res.json(errorMessages);
+    } else if (!req.course.user || !req.course.title || !req.course.description) {
         const error = new Error('Please provide: user, title and description');
         error.status = 400;
         return next(error); 
@@ -248,8 +253,8 @@ authenticateUser,
     // Object destructuring to get the currentUser from the req object
     // Got a linter warning on this at work and find it awesome :p    
     const { currentUser } = req;
-    const ownerIds = req.body.user;
-
+    const ownerIds = req.course.user;
+    
     // A user may only update a course if he/she is the owner
     // So loop over owner ids
     // check if the currentUser is the owner
@@ -264,7 +269,6 @@ authenticateUser,
                 return next(error)
             }
 
-            console.log(currentUser, user);
             if (user) {
                 // emailAddresses should be unique
                 // So when the currentUser emailaddress does not match with the courses owner
@@ -274,7 +278,7 @@ authenticateUser,
                     res.sendStatus(403) 
             
                 } else {
-                
+                    console.log(req)
                     req.course.update(req.body, (err, data) => {
                         if(err) {
                             return next(err);
