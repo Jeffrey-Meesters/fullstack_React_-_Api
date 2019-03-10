@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import axios from 'axios';
 
-import ErrorList from '../elements/ErrorList'
+import ErrorList from '../elements/ErrorList';
 
 class CourseForm extends Component {
     constructor(props) {
@@ -79,7 +79,7 @@ class CourseForm extends Component {
     componentDidMount() {
         const currentLocation = this.props.history.location.pathname
         const buttonText = (currentLocation === '/courses/create') ? 'Create' : 'Update';
-        console.log(this.props)
+  
         this.setState({
             formLocation: currentLocation,
             buttonText: buttonText
@@ -168,13 +168,18 @@ class CourseForm extends Component {
         this.formValidation()
     }
 
-    handleCancel = () => {
+    handleCancel = (e) => {
+        e.preventDefault();
         this.setState({
             title: '',
             description: '',
             estimatedTime: '',
             materialsNeeded: '',
-            error: []
+            error: [],
+            formLocation: '',
+            loading: false,
+            response: [],
+            loadedOwenerData: []
         })
         this.props.history.push('/courses')
     }
@@ -186,6 +191,7 @@ class CourseForm extends Component {
 
         if (errorData.errorValues) {
             const errorObject = errorData.errorValues;
+            errorList = [];
             errorList = <ErrorList errorObject={errorObject} />;
         }
 

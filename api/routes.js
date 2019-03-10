@@ -274,8 +274,9 @@ authenticateUser,
                 // So when the currentUser emailaddress does not match with the courses owner
                 // email adddress te currentUser may not update it
                 if (currentUser.emailAddress !== user.emailAddress) {
-                        
-                    res.sendStatus(403) 
+                    const error = new Error('You\'re not allowed to change this course.');
+                    error.status = 403;    
+                    return next(error) 
             
                 } else {
                     console.log(req)
