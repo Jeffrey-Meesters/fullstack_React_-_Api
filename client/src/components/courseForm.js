@@ -15,8 +15,12 @@ class CourseForm extends Component {
             error: [],
             formLocation: '',
             loading: false,
-            response: []
+            response: [],
+            loadedCourseData: [],
+            loadedOwenerData: []
         }
+
+        this.inputChange = this.inputChange.bind(this)
     }
 
     inputChange = (e) => {
@@ -50,10 +54,32 @@ class CourseForm extends Component {
         }
     }
 
-    componentWillMount() {
+    // I had some trouble getting the course data into the form
+    // Looked into lifecycles and found this solution: https://reactjs.org/docs/react-component.html
+    // for componendDidUpdate
+    componentDidUpdate(prevProps) {
+        if (this.props.courseData !== prevProps.courseData) {
+            const courseData = this.props.courseData;
+            console.log(this.props)
+            const currentLocation = this.props.history.location.pathname
+    
+            this.setState({
+                formLocation: currentLocation,
+                title: courseData.title,
+                description: courseData.description,
+                estimatedTime: courseData.estimatedTime,
+                materialsNeeded: courseData.materialsNeeded,
+            })
+        }
+    }
+
+    componentDidMount() {
+        const courseData = this.props.courseData;
+        console.log(this.props)
         const currentLocation = this.props.history.location.pathname
+
         this.setState({
-            formLocation: currentLocation
+            formLocation: currentLocation,
         })
     }
 
@@ -144,36 +170,29 @@ class CourseForm extends Component {
 
     render() {
         const errorData = this.state.error;
-        let errors = [];
-        if (errorData.errorValues) {
-            errors = errorData.errorValues.map((error, index) =>
-                <ErrorList errorItem={error} key={index} />
-            )
-        }
+        let errorList = [];
 
+        if (errorData.errorValues) {
+            console.log(errorData.errorValues)
+            const errorObject = errorData.errorValues;
+            errorList = <ErrorList errorObject={errorObject} />;
+        }
 
         return (
             <div>
-                <div>
-                    <h2 className="validation--errors--label">Validation errors</h2>
-                    <div className="validation-errors">
-                    <ul>
-                        {errors}
-                    </ul>
-                    </div>
-                </div>
+                {errorList}
                 <form onSubmit={this.handleSubmit} >
                     <div className="grid-66">
                         <div className="course--header">
                             <h4 className="course--label">Course</h4>
                             <div>
-                                <input id="title" name="title" type="text" className="input-title course--title--input" placeholder="Course title..." defaultValue="" onChange={this.inputChange}/>
+                                <input id="title" name="title" type="text" className="input-title course--title--input" placeholder="Course title..." onChange={this.inputChange} defaultValue={this.state.title}/>
                             </div>
                             <p>By Joe Smith</p>
                         </div>
                         <div className="course--description">
                             <div>
-                                <textarea id="description" name="description" className="" placeholder="Course description..." onChange={this.inputChange} />
+                                <textarea id="description" name="description" className="" placeholder="Course description..." onChange={this.inputChange} value={this.state.description} />
                             </div>
                         </div>
                     </div>
@@ -183,13 +202,13 @@ class CourseForm extends Component {
                             <li className="course--stats--list--item">
                                 <h4>Estimated Time</h4>
                                 <div>
-                                    <input id="estimatedTime" name="estimatedTime" type="text" className="course--time--input" placeholder="Hours" defaultValue="" onChange={this.inputChange} />
+                                    <input id="estimatedTime" name="estimatedTime" type="text" className="course--time--input" placeholder="Hours" defaultValue={this.state.estimatedTime} onChange={this.inputChange} />
                                 </div>
                             </li>
                             <li className="course--stats--list--item">
                                 <h4>Materials Needed</h4>
                                 <div>
-                                    <textarea id="materialsNeeded" name="materialsNeeded" className="" placeholder="List materials..." onChange={this.inputChange} ></textarea> 
+                                    <textarea id="materialsNeeded" name="materialsNeeded" className="" placeholder="List materials..." onChange={this.inputChange} value={this.state.materialsNeeded}></textarea> 
                                 </div>
                             </li>
                             </ul>

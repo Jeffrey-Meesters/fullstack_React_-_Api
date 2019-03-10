@@ -1,12 +1,23 @@
 import React from 'react';
 
-const ErrorList = (errorItem) => {
-    const errorItems = Object.keys(errorItem).map((item) => {
-        return Object.values(errorItem[item])[0]
-    })
+const ErrorList = (errorObject) => {
+    let errorItems = []
+    const errors = errorObject.errorObject;
+    errorItems = errors.map((error, index) => {
+        console.log(Object.values(error)[0])
+        return <li key={index}>{Object.values(error)[0]}</li>;
+    });
+
 
     return (
-        <li>{errorItems}</li>
+        <div>
+            <h2 className="validation--errors--label">Validation errors</h2>
+            <div className="validation-errors">
+                <ul>
+                    {errorItems}
+                </ul>
+            </div>
+        </div> 
     )
 }
 

@@ -40,7 +40,6 @@ class CourseDetails extends Component {
     try {
       axios.get(`http://localhost:5000/api/courses/${this.props.match.params.courseId}`, this.state.postData).then((response) => {
         this.setState({
-          loading: false,
           courseData: response.data
         });
 
@@ -57,14 +56,14 @@ class CourseDetails extends Component {
   render() {
     const courseData = this.state.courseData;
     const ownerData = this.state.ownerData;
-    console.log(this)
+
     return (
         <div>
         <div className="actions--bar">
           <div className="bounds">
             <div className="grid-100">
               <span>
-                <Link className="button" to={this.props.match.url+"/update"}>
+                <Link className="button" to={`${this.props.match.url}/update`} >
                   Update Course
                 </Link>
                 <Link className="button" to="/yolo">
