@@ -112,12 +112,12 @@ class CourseForm extends Component {
             materialsNeeded: this.state.materialsNeeded,
         }
 
+        // this will be auth token or cookie or something
         const auth = {
             username: 'Jeffrey@smith.com',
             password:'testt'
         }
 
-        console.log(postData)
         try {
             axios({
                 method,

@@ -13,7 +13,7 @@ const Course = require("./models").Course;
 const authenticateUser = (req, res, next) => {
     // get the credentials form the request object
     const credentials = auth(req);
-
+    console.log(credentials)
     if (credentials) {
         
         // find the user by email address (should be unique)

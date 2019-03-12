@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { Link } from "react-router-dom";
+import axios from 'axios';
 
 import ErrorList from '../elements/ErrorList';
 
@@ -52,8 +53,22 @@ class UserSignUp extends Component {
     }
   }
 
-  submitForm = () => {
-
+  async submitForm() {
+    const postData = {
+      firstName: this.state.firstName,
+      lastName: this.state.lastName,
+      emailAddress: this.state.emailAddress,
+      password: this.state.password,
+    }
+    try {
+      await axios.post(`http://localhost:5000/api/users`, postData).then((response) => {
+        console.log(response)
+      }).catch((error) => {
+        console.log('axios', error);
+      })
+    } catch(error) {
+      console.log('url', error)
+    }  
   }
 
   validateForm = () => {
@@ -67,7 +82,6 @@ class UserSignUp extends Component {
       }
     })
 
-    console.log(formInput)
     if (this.state.password !== this.state.confirmPass) {
       errors.push({
         confirmError: 'Passwords don\'t match'
