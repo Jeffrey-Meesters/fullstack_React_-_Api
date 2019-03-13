@@ -59,6 +59,7 @@ class UserSignUp extends Component {
       lastName: this.state.lastName,
       emailAddress: this.state.emailAddress,
       password: this.state.password,
+      twj: window.location.hostname,
     }
     try {
       await axios.post(`http://localhost:5000/api/users`, postData).then((response) => {

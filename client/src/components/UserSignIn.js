@@ -44,15 +44,20 @@ class UserSignIn extends Component {
     // The rest should be handled by a token/cookie
     const auth = {
       username: this.state.emailAddress,
-      password: this.state.password
+      password: this.state.password,
     }
 
-    console.log(auth)
+    const postData = {
+      hostName: window.location.hostname
+    }
+
+    console.log(postData)
     try {
       axios({
         method,
         url,
         auth,
+        data: postData
       }).then((response) => {
           this.setState({
               loading: false,

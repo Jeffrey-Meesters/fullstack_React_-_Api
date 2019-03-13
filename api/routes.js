@@ -5,47 +5,9 @@ const router = express.Router();
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
 const { check, validationResult } = require('express-validator/check');
-const auth = require('basic-auth');
 const User = require("./models").User;
 const Course = require("./models").Course;
-
-// User authentication function
-const authenticateUser = (req, res, next) => {
-    // get the credentials form the request object
-    const credentials = auth(req);
-    console.log(credentials)
-    if (credentials) {
-        
-        // find the user by email address (should be unique)
-        User.findOne({'emailAddress': credentials.name}, (error, user) => {
-            if (error) {
-                console.warn('error in DB search', error);
-                res.status(401).json({message: 'Access Denied'})
-            }
-
-            if (user) {
-                // We found a user with this email address.
-                // So use bcrypt to compare the hashed password with the given password
-                const authenticated = bcrypt.compareSync(credentials.pass, user.password);
-
-                if (!authenticated) {
-                    res.status(401).json({message: 'Access Denied'})
-                } else {
-                    // User is authenticated
-                    // So store the currentUsr on the request object
-                    req.currentUser = user;
-                    next();
-                }
-            } else {
-                console.warn('users not found');
-                res.status(401).json({message: 'Access Denied'})
-            }
-        })
-    } else {
-        console.warn('Auth header not found');
-        res.status(401).json({message: 'Access Denied'})
-    }
-}
+const authenticateUser = require("./auth").authenticateUser;
 
 // This is a router param
 // Created to easely retrieve courses by ID
@@ -71,11 +33,16 @@ router.param("id", (req, res, next, id) => {
 // Route for getting current user
 // authenticateUser: user should be authenticated before this middleware executes
 router.get('/users', authenticateUser, (req, res, next) => {
+
     // because when the user is authenticated req.currentUser will exist
     // the status is 200 and return the current user
     if (req.currentUser) {
-
-        res.status(200).json(req.currentUser);
+        console.log('in route', req.jwtToken)
+        const respData = {
+            currentUser: req.currentUser._id,
+            jwtToken: req.jwtToken
+        }
+        res.status(200).json(respData);
 
     } else {
 
