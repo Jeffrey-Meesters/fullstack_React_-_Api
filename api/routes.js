@@ -8,6 +8,7 @@ const { check, validationResult } = require('express-validator/check');
 const User = require("./models").User;
 const Course = require("./models").Course;
 const authenticateUser = require("./auth").authenticateUser;
+const jwt = require("./jwt");
 
 // This is a router param
 // Created to easely retrieve courses by ID
@@ -29,6 +30,23 @@ router.param("id", (req, res, next, id) => {
     })
 })
 
+router.get('/tokenAuth', (req, res, next) => {
+    const token = req.headers['x-access-token'];
+    
+    if (token) {
+        console.log(token);
+        next()
+    } else {
+        next({message: `undef token: ${token}`})
+    }
+    // const options = {
+    //     issuer: 'fjs-course',
+    //     subject: user.emailAddress,
+    //     audience: req.get('origin'),
+    // }
+    // jwt.verifyToken(token, options)
+})
+
 // GET /users
 // Route for getting current user
 // authenticateUser: user should be authenticated before this middleware executes
@@ -39,7 +57,7 @@ router.get('/users', authenticateUser, (req, res, next) => {
     if (req.currentUser) {
         console.log('in route', req.jwtToken)
         const respData = {
-            currentUser: req.currentUser._id,
+            currentUser: req.currentUser.emailAddress,
             jwtToken: req.jwtToken
         }
         res.status(200).json(respData);

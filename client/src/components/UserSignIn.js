@@ -2,6 +2,8 @@ import React, { Component } from 'react';
 import { Link } from "react-router-dom";
 import axios from 'axios';
 
+// import Consumer from '../state'
+
 import ErrorList from '../elements/ErrorList';
 
 class UserSignIn extends Component {
@@ -47,23 +49,17 @@ class UserSignIn extends Component {
       password: this.state.password,
     }
 
-    const postData = {
-      hostName: window.location.hostname
-    }
-
-    console.log(postData)
     try {
       axios({
         method,
         url,
         auth,
-        data: postData
       }).then((response) => {
-          this.setState({
-              loading: false,
-              response: response
-          });
-          console.log('working response course is saved in DB', response);
+          this.props.isSignedIn({
+            loading: false,
+            userMail: response.data.currentUser,
+            token: response.data.jwtToken
+          })
       }).catch((error) => {
           let errorValues = [error.response.data];
           this.setState(prevState => ({
@@ -122,7 +118,7 @@ class UserSignIn extends Component {
     }
 
     return (
-        <div className="bounds">
+      <div className="bounds">
         <div className="grid-33 centered signin">
           <h1>Sign In</h1>
           <div>
