@@ -32,9 +32,9 @@ verifyToken = (token, $Options) => {
 }
 
 decode = (token) => {
-    return jwt.decode(token, {
-        complete: true
-    });
+    return jwt.decode(token);  // , {
+      //  complete: true
+    //}
     //returns null if token is invalid
 }
 

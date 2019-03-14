@@ -37,7 +37,7 @@ app.use(morgan('dev'));
 // found here: https://enable-cors.org/server_expressjs.html
 app.use(function(req, res, next) {
   res.header("Access-Control-Allow-Origin", "*");
-  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, authorization");
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, authorization, x-access-token");
   res.header("Access-Control-Allow-Methods", "GET, HEAD, POST, PUT, DELETE");
   next();
 });

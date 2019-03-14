@@ -17,7 +17,7 @@ router.param("id", (req, res, next, id) => {
         if(err) {
             return next(err);
         }
-        
+
         if(!doc) {
             err = new Error("Not found");
             err.status = 404;
@@ -32,19 +32,32 @@ router.param("id", (req, res, next, id) => {
 
 router.get('/tokenAuth', (req, res, next) => {
     const token = req.headers['x-access-token'];
-    
+
     if (token) {
-        console.log(token);
-        next()
+        const tokenInfo = jwt.decode(token);
+
+        if (tokenInfo) {
+            const tokenOptions = {
+                issuer: tokenInfo.iss,
+                subject: tokenInfo.sub,
+                audience: tokenInfo.aud
+            }
+
+            const verified = jwt.verifyToken(token, tokenOptions);
+
+            if (verified && verified.name === verified.sub) {
+                res.sendStatus(200)
+            } else {
+                res.status(403).json({message: 'Access denied'});
+            }
+
+        } else {
+            res.status(403).json({message: 'Access denied'});
+            // token is invalid flag user as not auth
+        }
     } else {
-        next({message: `undef token: ${token}`})
+        res.status(500).json({message: 'Could not get Auth token'})
     }
-    // const options = {
-    //     issuer: 'fjs-course',
-    //     subject: user.emailAddress,
-    //     audience: req.get('origin'),
-    // }
-    // jwt.verifyToken(token, options)
 })
 
 // GET /users
@@ -75,7 +88,7 @@ router.get('/users', authenticateUser, (req, res, next) => {
 // GET /users
 // Route for getting current user
 // authenticateUser: user should be authenticated before this middleware executes
-router.get('/owner/:ownerId', (req, res, next) => {  
+router.get('/owner/:ownerId', (req, res, next) => {
     // authenticateUser
     // because when the user is authenticated req.currentUser will exist
     // the status is 200 and return the current user
@@ -116,7 +129,7 @@ router.post('/users', [
     if (!errors.isEmpty()) {
         const errorMessages = errors.array().map(error => error.msg);
         res.status(400).json(errorMessages);
-    
+
     } else if (!req.body.firstName || !req.body.lastName || !req.body.emailAddress || !req.body.password) {
         const error = new Error('Please provide: firstname, lastname, email address and password');
         error.status = 400;
@@ -182,8 +195,8 @@ router.post('/courses', [
     check('user').exists().withMessage('To who is this course connected?'),
     check('title').exists().withMessage('Please provide a title'),
     check('description').exists().withMessage('Please provide a description')
-], 
-authenticateUser, 
+],
+authenticateUser,
 (req, res, next) => {
     const errors = validationResult(req);
 
@@ -194,7 +207,7 @@ authenticateUser,
     } else if (!req.body.user || !req.body.title || !req.body.description ) {
         const error = new Error('Please provide: user, title and description');
         error.status = 400;
-        next(error);        
+        next(error);
     } else {
         const course = new Course(req.body);
         if (course) {
@@ -202,7 +215,7 @@ authenticateUser,
                 if(err) {
                     return next(err);
                 }
-                
+
                 console.log(course._id);
                 res.location(`/api/courses/${course._id}`);
                 res.sendStatus(201);
@@ -220,8 +233,8 @@ router.put('/courses/:id', [
     check('user').exists().withMessage('Tho who is this course connected?'),
     check('title').exists().withMessage('Please provide a title'),
     check('description').exists().withMessage('Please provide a description')
-], 
-authenticateUser, 
+],
+authenticateUser,
 (req, res, next) => {
     console.log('reqy', req);
     const errors = validationResult(req);
@@ -232,14 +245,14 @@ authenticateUser,
     } else if (!req.course.user || !req.course.title || !req.course.description) {
         const error = new Error('Please provide: user, title and description');
         error.status = 400;
-        return next(error); 
+        return next(error);
     }
-    
+
     // Object destructuring to get the currentUser from the req object
-    // Got a linter warning on this at work and find it awesome :p    
+    // Got a linter warning on this at work and find it awesome :p
     const { currentUser } = req;
     const ownerIds = req.course.user;
-    
+
     // A user may only update a course if he/she is the owner
     // So loop over owner ids
     // check if the currentUser is the owner
@@ -260,19 +273,19 @@ authenticateUser,
                 // email adddress te currentUser may not update it
                 if (currentUser.emailAddress !== user.emailAddress) {
                     const error = new Error('You\'re not allowed to change this course.');
-                    error.status = 403;    
-                    return next(error) 
-            
+                    error.status = 403;
+                    return next(error)
+
                 } else {
                     console.log(req)
                     req.course.update(req.body, (err, data) => {
                         if(err) {
                             return next(err);
                         }
-                
+
                         res.sendStatus(201)
                     });
-            
+
                 }
             } else {
                 res.status(403).json({message: 'User not found'})
@@ -304,20 +317,20 @@ router.delete('/courses/:id', authenticateUser, (req, res, next) => {
                 // So when the currentUser emailaddress does not match with the courses owner
                 // email adddress te currentUser may not delete it
                 if (currentUser.emailAddress !== user.emailAddress) {
-                        
-                    res.sendStatus(403) 
-            
+
+                    res.sendStatus(403)
+
                 } else {
-                    
+
                     // remove the course from the DB
                     req.course.remove((err) => {
                         if(err) {
                             return next(err);
                         }
-                
+
                         res.sendStatus(204);
                     })
-            
+
                 }
             } else {
                 res.status(403).json({message: 'User not found'})

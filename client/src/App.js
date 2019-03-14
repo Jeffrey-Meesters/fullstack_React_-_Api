@@ -34,16 +34,19 @@ class App extends Component {
 
   componentWillMount() {
     const cachedToken = localStorage.getItem(this.state.cachKey);
-    
+
     if (cachedToken) {
       const method = 'GET';
       const url = 'http://localhost:5000/api/tokenAuth';
       const auth = `x-access-token: ${cachedToken}`;
+      console.log(auth)
       try {
         axios({
           method,
           url,
-          auth,
+          headers: {
+            'x-access-token': cachedToken
+          }
         }).then((response) => {
           console.log('working response course is saved in DB', response);
 
@@ -91,7 +94,7 @@ class App extends Component {
                   <Route exact path={ `${url}/:courseId/detail/update` } component={UpdateCourse} />
                 </>
               )}
-            />         
+            />
             <Route exact path="/signin" render={() => <UserSignIn isSignedIn={this.userSignIn} />} />
             <Route exact path="/signup" component={UserSignUp} />
             <Route exact path="/sigout" />
