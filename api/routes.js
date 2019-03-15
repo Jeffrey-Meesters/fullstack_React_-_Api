@@ -33,18 +33,24 @@ router.param("id", (req, res, next, id) => {
 router.get('/tokenAuth', (req, res, next) => {
     const token = req.headers['x-access-token'];
 
+    // If token does exist continue, else token wasn't send
     if (token) {
         const tokenInfo = jwt.decode(token);
-
+        // if tokenInfo then token was succesfully decoded
+        // if not the token has probably been modified
+        // Use the decoded data to verify the token
         if (tokenInfo) {
             const tokenOptions = {
                 issuer: tokenInfo.iss,
                 subject: tokenInfo.sub,
                 audience: tokenInfo.aud
             }
-
+            // token verification
             const verified = jwt.verifyToken(token, tokenOptions);
-
+            // added a double check to see if the data is indeed correct
+            // I have the user ID as well so could also try and fetch the user
+            // to check data against our DB
+            // But for this course this seems fine for now
             if (verified && verified.name === verified.sub) {
                 res.sendStatus(200)
             } else {

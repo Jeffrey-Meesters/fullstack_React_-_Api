@@ -8,14 +8,14 @@ const authenticateUser = (req, res, next) => {
     // get the credentials form the request object
     const credentials = auth(req);
     if (credentials) {
-        
+
         // find the user by email address (should be unique)
         User.findOne({'emailAddress': credentials.name}, (error, user) => {
             if (error) {
                 console.warn('error in DB search', error);
                 res.status(401).json({message: 'Access Denied'})
             }
-            
+
             if (user) {
                 // We found a user with this email address.
                 // So use bcrypt to compare the hashed password with the given password
@@ -25,7 +25,7 @@ const authenticateUser = (req, res, next) => {
                     res.status(401).json({message: 'Access Denied'})
                 } else {
                     // User is authenticated
-                    // So store the currentUsr on the request object
+                    // Start setting data for the JWT
                     const payload = {
                         id: user._id,
                         name: user.emailAddress,
@@ -37,9 +37,15 @@ const authenticateUser = (req, res, next) => {
                         audience: req.get('origin'),
                     }
 
+                    // get a token by signing the data
                     const token = jwt.signToken(payload, signOptions);
+
+                    // Store user on the req object
                     req.currentUser = user;
+                    // also store the token on req object
                     req.jwtToken = token
+
+                    // Call next to continue in the callee route middleware
                     next();
                 }
             } else {

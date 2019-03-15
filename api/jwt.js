@@ -10,7 +10,7 @@ signToken = (payload, $Options) => {
         issuer: $Options.issuer,
         subject: $Options.subject,
         audience: $Options.audience,
-        expiresIn: "1d", // 24 hour validity
+        expiresIn: "1m", // 24 hour validity
         algorithm: "RS256"
     };
     return jwt.sign(payload, privateKEY, signOptions);
@@ -21,7 +21,7 @@ verifyToken = (token, $Options) => {
         issuer: $Options.issuer,
         subject: $Options.subject,
         audience: $Options.audience,
-        expiresIn: "1d",
+        expiresIn: "1m",
         algorithm: ["RS256"]
     }
     try {
@@ -32,10 +32,8 @@ verifyToken = (token, $Options) => {
 }
 
 decode = (token) => {
-    return jwt.decode(token);  // , {
-      //  complete: true
-    //}
     //returns null if token is invalid
+    return jwt.decode(token);
 }
 
 module.exports = {
