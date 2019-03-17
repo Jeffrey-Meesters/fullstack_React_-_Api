@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
-import { Link } from "react-router-dom";
-import axios from 'axios';
+import { Link }             from "react-router-dom";
+import axios                from 'axios';
 
-import ErrorList from '../elements/ErrorList';
+import ErrorList            from '../elements/ErrorList';
 
 class UserSignUp extends Component {
   constructor(props) {

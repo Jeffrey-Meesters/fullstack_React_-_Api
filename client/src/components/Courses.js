@@ -1,43 +1,54 @@
 import React, { Component } from 'react';
-import axios from 'axios';
-import { Link } from "react-router-dom";
+import axios                from 'axios';
+import { Link }             from "react-router-dom";
 
-import CourseCards from '../elements/courseCards';
+import CourseCards          from '../elements/courseCards';
 
 class Courses extends Component {
 
   constructor() {
     super();
-
+    this._isMounted = false;
     this.state = {
       loading: true,
       coursesData: [],
     }
   }
  
-  componentWillMount() {
+  getCourseData = async () => {
     const postData = {
       name: 'gerrit@gmail.com',
-      password: 'gerrit'
+      password: 'gerrit',
     }
     
     try {
       axios.get('http://localhost:5000/api/courses', postData).then((response) => {
-        this.setState({
-          loading: false,
-          coursesData: response.data
-        });
-        console.log(this.state.coursesData);
+        if (this._isMounted) {
+          this.setState({
+            loading: false,
+            coursesData: response.data
+          });
+        }
+
       }).catch((error) => {
         console.log('axios', error);
       })
     } catch(error) {
       console.log('url', error)
-    }  
+    }
+    
+  }
+
+  componentDidMount() {
+    this._isMounted = true;
+    this.getCourseData()
+  }
+
+  componentWillUnmount() {
+    this._isMounted = false;
   }
 
   render() {
-    
     return (
       <div className="bounds">
         <CourseCards courseData={this.state.coursesData} />

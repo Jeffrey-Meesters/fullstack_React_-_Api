@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
-import axios from 'axios';
-import { Link } from "react-router-dom";
+import axios                from 'axios';
+import { Link }             from "react-router-dom";
 
-import MarkDown from '../elements/MarkDown';
+import MarkDown             from '../elements/MarkDown';
 
 class CourseDetails extends Component {
   constructor() {
@@ -29,14 +29,12 @@ class CourseDetails extends Component {
       }).catch((error) => {
         console.log('axios', error);
       })
-    } catch(error) {
+    } catch (error) {
       console.log('url', error)
-    }  
+    }
   }
 
   componentWillMount() {
-
-    
     try {
       axios.get(`http://localhost:5000/api/courses/${this.props.match.params.courseId}`, this.state.postData).then((response) => {
         this.setState({
@@ -48,9 +46,9 @@ class CourseDetails extends Component {
       }).catch((error) => {
         console.log('axios', error);
       })
-    } catch(error) {
+    } catch (error) {
       console.log('url', error)
-    }  
+    }
   }
 
   render() {
@@ -58,7 +56,7 @@ class CourseDetails extends Component {
     const ownerData = this.state.ownerData;
 
     return (
-        <div>
+      <div>
         <div className="actions--bar">
           <div className="bounds">
             <div className="grid-100">

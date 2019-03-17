@@ -1,14 +1,12 @@
 import React, { Component } from 'react';
-import { Link } from "react-router-dom";
-import axios from 'axios';
+import { Link }             from "react-router-dom";
+import axios                from 'axios';
 
-// import Consumer from '../state'
-
-import ErrorList from '../elements/ErrorList';
+import ErrorList            from '../elements/ErrorList';
 
 class UserSignIn extends Component {
-  constructor() {
-    super()
+  constructor(props) {
+    super(props)
     this.state = {
       emailAddress: '',
       password: '',
@@ -60,11 +58,14 @@ class UserSignIn extends Component {
             userMail: response.data.currentUser,
             token: response.data.jwtToken
           })
+          console.log(this.props)
+          this.props.history.push('/courses')
       }).catch((error) => {
-          let errorValues = [error.response.data];
-          this.setState(prevState => ({
-              error: { ...prevState.error, errorValues }
-          }))
+        console.log(error)
+          // let errorValues = [error.response.data];
+          // this.setState(prevState => ({
+          //     error: { ...prevState.error, errorValues }
+          // }))
       })
     } catch (error) {
       console.log('url', error)
