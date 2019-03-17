@@ -1,54 +1,42 @@
 import React, { Component } from 'react';
-import axios                from 'axios';
 import { Link }             from "react-router-dom";
 
 import MarkDown             from '../elements/MarkDown';
 
+import { getData } from '../helpers/callApi';
+
 class CourseDetails extends Component {
-  constructor() {
-    super()
+  constructor(props) {
+    super(props)
 
     this.state = {
       courseData: [],
-      ownerData: [],
-      postData: {
-        name: 'gerrit@gmail.com',
-        password: 'gerrit'
-      }
+      ownerData: []
     }
   }
 
   getOwner = (ownerId) => {
-    try {
-      axios.get(`http://localhost:5000/api/owner/${ownerId}`, this.state.postData).then((response) => {
-        this.setState({
-          loading: false,
-          ownerData: response.data
-        });
-
-      }).catch((error) => {
-        console.log('axios', error);
-      })
-    } catch (error) {
-      console.log('url', error)
-    }
+    getData(true, `/owner/${ownerId}`).then((ownerData) => {
+      this.setState({
+        ownerData: ownerData
+      });
+    })
   }
 
+
   componentWillMount() {
-    try {
-      axios.get(`http://localhost:5000/api/courses/${this.props.match.params.courseId}`, this.state.postData).then((response) => {
-        this.setState({
-          courseData: response.data
-        });
+    getData(true, `/courses/${this.props.match.params.courseId}`).then((courseDetails) => {
 
-        this.getOwner(response.data.user);
+      this.setState({
+        courseData: courseDetails,
+      });
 
-      }).catch((error) => {
-        console.log('axios', error);
-      })
-    } catch (error) {
-      console.log('url', error)
-    }
+      this.getOwner(courseDetails.user)
+    })
+  }
+
+  componentWillUnmount() {
+    getData(false);
   }
 
   render() {

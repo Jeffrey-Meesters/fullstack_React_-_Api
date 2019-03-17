@@ -79,7 +79,7 @@ class RoutesComponent extends Component {
 
             });
 
-        }  else {
+        }  else if (this.props.history.location.pathname !== '/signin') {
             this.props.history.push('/signin')
         }
         
@@ -120,7 +120,7 @@ class RoutesComponent extends Component {
                     render={({ match: { url } }) => (
                     <>
                         <Route exact path={ `${url}` } component={Courses} />
-                        <Route exact path={ `${url}/create` } isAuth={this.state.isAuth} render={ () => (this.state.isAuth) ? <CreateCourse /> : <Redirect to="/signin" />} />
+                        <Route exact path={ `${url}/create` } isAuth={this.state.isAuth} render={ () => (this.state.isAuth) ? <CreateCourse history={ this.props.history } /> : <Redirect to="/signin" />} />
                         <Route exact path={ `${url}/:courseId/detail` } component={CourseDetail} />
                         <Route exact path={ `${url}/:courseId/detail/update` } isAuth={this.state.isAuth} component={UpdateCourse} />
                     </>

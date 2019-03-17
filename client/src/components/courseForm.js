@@ -3,6 +3,8 @@ import axios                from 'axios';
 
 import ErrorList            from '../elements/ErrorList';
 
+import { sendData } from '../helpers/callApi'
+
 class CourseForm extends Component {
     constructor(props) {
         super(props)
@@ -77,6 +79,7 @@ class CourseForm extends Component {
     }
 
     componentDidMount() {
+        console.log(this)
         const currentLocation = this.props.history.location.pathname
         const buttonText = (currentLocation === '/courses/create') ? 'Create' : 'Update';
   
@@ -84,6 +87,10 @@ class CourseForm extends Component {
             formLocation: currentLocation,
             buttonText: buttonText
         })
+    }
+
+    componentWillUnmount() {
+        sendData(false)
     }
 
     submitForm = () => {
@@ -112,24 +119,14 @@ class CourseForm extends Component {
             materialsNeeded: this.state.materialsNeeded,
         }
 
-        // this will be auth token or cookie or something
-        const auth = {
-            username: 'Jeffrey@smith.com',
-            password:'testt'
-        }
-
         try {
-            axios({
-                method,
-                url,
-                auth,
-                data: postData,
-            }).then((response) => {
+            sendData(true, url, method, postData, 'tucan').then((response) => {
+
                 this.setState({
                     loading: false,
                     response: response
                 });
-                console.log('working response course is saved in DB', response);
+
             }).catch((error) => {
                 let errorValues = [error.response.data];
                 this.setState(prevState => ({

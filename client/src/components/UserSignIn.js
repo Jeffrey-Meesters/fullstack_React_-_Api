@@ -62,10 +62,6 @@ class UserSignIn extends Component {
           this.props.history.push('/courses')
       }).catch((error) => {
         console.log(error)
-          // let errorValues = [error.response.data];
-          // this.setState(prevState => ({
-          //     error: { ...prevState.error, errorValues }
-          // }))
       })
     } catch (error) {
       console.log('url', error)
