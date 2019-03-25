@@ -62,7 +62,7 @@ router.get('/tokenAuth', (req, res, next) => {
             // token is invalid flag user as not auth
         }
     } else {
-        res.status(500).json({message: 'Could not get Auth token'})
+        res.status(403).json({message: 'Could not get Auth token'})
     }
 })
 

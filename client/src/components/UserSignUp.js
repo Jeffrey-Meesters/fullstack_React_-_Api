@@ -15,13 +15,19 @@ class UserSignUp extends Component {
       confirmPass: '',
       formErrors: []
     }
+
+    // On input call updateFormValue
     this.updateFormValue = this.updateFormValue.bind(this);
   }
 
   updateFormValue(e) {
+    // get current element id
     const target = e.target.id;
+    // get current element value
     const value = e.target.value;
 
+    // if the current element id matched a case
+    // update state of the matching input
     switch(target) {
       case 'firstName':
         this.setState({
@@ -54,6 +60,7 @@ class UserSignUp extends Component {
   }
 
   async submitForm() {
+    // Create an object to post
     const postData = {
       firstName: this.state.firstName,
       lastName: this.state.lastName,
@@ -62,6 +69,7 @@ class UserSignUp extends Component {
       twj: window.location.hostname,
     }
     try {
+      // Send data to the api to create an user
       await axios.post(`http://localhost:5000/api/users`, postData).then((response) => {
         console.log(response)
       }).catch((error) => {
@@ -73,8 +81,13 @@ class UserSignUp extends Component {
   }
 
   validateForm = () => {
+    // Get input data which is in state
     const formInput = this.state;
+    // Create an emprty errors array
     const errors = [];
+
+    // loop over state items
+    // if an item is empty throw an error
     Object.keys(formInput).forEach((item) => {
       if (formInput[item] === '') {
         errors.push({
@@ -83,24 +96,30 @@ class UserSignUp extends Component {
       }
     })
 
+    // Check if both password fields have the same input
+    // if not create an extra error
     if (this.state.password !== this.state.confirmPass) {
       errors.push({
         confirmError: 'Passwords don\'t match'
       })
     }
     
+    // Update error state and keep previous state
     this.setState( prevState => ({
       formErrors: {...prevState.formErrors, errors}
     }))
 
+    // if errors stop script
     if (errors.length > 0) {
       return;
     }
 
+    // coninue with form submit
     this.submitForm();
   }
 
   handleCancel = (e) => {
+    // user canceled so empty all inputs and errors
     e.preventDefault();
     this.setState({
       firstName: '',
@@ -113,11 +132,15 @@ class UserSignUp extends Component {
   }
 
   handleSubmit = (e) => {
+    // prevent default form submit behaviour
     e.preventDefault();
+    // start validating the form
     this.validateForm()
   }
 
   render() {
+
+    // Create errorData and if there show it in view
     const errorData = this.state.formErrors;
     let errorList = [];
 

@@ -4,7 +4,6 @@ import CourseForm from './courseForm';
 
 class CreateCourse extends Component {
     render() {
-        console.log(this)
         return (
             <div className="bounds course--detail">
                 <h1>Create Course</h1>

@@ -1,6 +1,9 @@
 import React from 'react';
 
 const ErrorList = (errorObject) => {
+    // receive an object with error data
+    // loop over the items and put every item in an <li>
+    // Show all li's in the returned view
     let errorItems = []
     const errors = errorObject.errorObject;
     errorItems = errors.map((error, index) => {

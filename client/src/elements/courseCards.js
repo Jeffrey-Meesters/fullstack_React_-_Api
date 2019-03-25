@@ -1,6 +1,7 @@
 import React    from 'react';
 import { Link } from "react-router-dom";
 
+// for every input creatte a course card
 const CourseCards = ({courseData}) => {
 
     const courseList = courseData.map((course) =>

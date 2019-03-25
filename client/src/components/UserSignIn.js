@@ -13,19 +13,26 @@ class UserSignIn extends Component {
       formErrors: []
     }
 
+    // I want the state to update and reflect values in input fields
+    // when the user gives input
     this.inputChange = this.inputChange.bind(this);
   }
 
   inputChange(e) {
+    // on input get the element id
     const target = e.target.id;
+    // on input store the value of the current element
     const value = e.target.value;
-    console.log(target, value)
+    
+    // switch to determin which inputfield the user is typing in
     switch(target) {
+      // in case it is id emailAddress set that state
       case 'emailAddress':
         this.setState({
           emailAddress: value
         })
         break;
+      // in case it is id password set that state
       case 'password':
         this.setState({
           password: value
@@ -36,12 +43,15 @@ class UserSignIn extends Component {
     }
   }
 
+  // form submission to the api
   submitForm = () => {
+    // set up get call
     const method = 'get';
     const url = 'http://localhost:5000/api/users'
 
     // This should be the only place the user actually send auth data
     // The rest should be handled by a token/cookie
+    // so get user credentials
     const auth = {
       username: this.state.emailAddress,
       password: this.state.password,
@@ -53,25 +63,39 @@ class UserSignIn extends Component {
         url,
         auth,
       }).then((response) => {
-          this.props.isSignedIn({
-            loading: false,
-            userMail: response.data.currentUser,
-            token: response.data.jwtToken
-          })
-          console.log(this.props)
-          this.props.history.push('/courses')
+        // When a success response returns the user is correctly validated
+        // store the users email and JWT token we got from the api
+        // isSignedIn is a method call in the parent (RoutesComponent)
+        // So the auth state is hoisted to the component that has all the routes
+        this.props.isSignedIn({
+          loading: false,
+          userMail: response.data.currentUser,
+          token: response.data.jwtToken
+        })
+        // redirect to the courses
+        this.props.history.push('/courses')
       }).catch((error) => {
+
         console.log(error)
+
       })
     } catch (error) {
+
       console.log('url', error)
+
     }
   }
 
+  // Form validation
   validateForm = () => {
+    // get the form input, which is this components state
     const formInput = this.state;
+    // decalare an errors array to store errorrs
     const errors = [];
+
+    // loop over the form input
     Object.keys(formInput).forEach((item) => {
+      // if the current item is empty store an error
       if (formInput[item] === '') {
         errors.push({
           [item]: `${item} is not filled in` 
@@ -79,10 +103,13 @@ class UserSignIn extends Component {
       }
     })
     
+    // Set the errors in component state
+    // do that while keeping previous state
     this.setState( prevState => ({
       formErrors: {...prevState.formErrors, errors}
     }))
 
+    // If there are errors, prevent form submit
     if (errors.length > 0) {
       return;
     }
@@ -90,8 +117,11 @@ class UserSignIn extends Component {
     this.submitForm();
   }
 
+  // User clicks cancel button
   handleCancel = (e) => {
+    // prevent default behaviour
     e.preventDefault();
+    // reset state to empty values
     this.setState({
       emailAddress: '',
       password: '',
@@ -99,15 +129,21 @@ class UserSignIn extends Component {
     })
   }
 
+  // User click on the form submit button
   handleSubmit = (e) => {
+    // prevent default behaviour
     e.preventDefault();
+    // Start with form validation
     this.validateForm()
   }
 
   render() {
+    // Get error data from state
     const errorData = this.state.formErrors;
     let errorList = [];
 
+    // If there are errors build the errorlist
+    // And render in view
     if (errorData.errors) {
         const errorObject = errorData.errors;
         errorList = [];

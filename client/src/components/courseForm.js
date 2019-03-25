@@ -1,10 +1,12 @@
 import React, { Component } from 'react';
-import axios                from 'axios';
 
 import ErrorList            from '../elements/ErrorList';
-
 import { sendData } from '../helpers/callApi'
 
+
+// I saw that the course create and course update views are exactly the same
+// Except for that one holds current data of the existing course and the other is empty
+// So i decided to use 1 form for both views
 class CourseForm extends Component {
     constructor(props) {
         super(props)
@@ -21,14 +23,18 @@ class CourseForm extends Component {
             loadedOwenerData: []
         }
 
+        // On input change all inputChange so we can save and show input
         this.inputChange = this.inputChange.bind(this)
     }
 
     inputChange = (e) => {
+        // store current element id
         const target = e.target.id;
+        // store current element value
         const value = e.target.value;
 
         // had to look up the switch syntax: https://www.w3schools.com/js/js_switch.asp
+        // Decided which element received input and update that value in state
         switch(target) {
             case 'title':
                 this.setState({
@@ -59,7 +65,11 @@ class CourseForm extends Component {
     // Looked into lifecycles and found this solution: https://reactjs.org/docs/react-component.html
     // for componendDidUpdate not getting stuck in a loop
     componentDidUpdate(prevProps) {
+        // check if props courseData is the same as previous props courseData
+        // if  not continue
         if (this.props.courseData !== prevProps.courseData) {
+            // When component updates get courseData from props
+            // store the data in state
             const courseData = this.props.courseData;
             this.setState({
                 title: courseData.title,
@@ -69,9 +79,12 @@ class CourseForm extends Component {
             })
         }
 
+        // check if props ownerData is the same as previous props ownerData
+        // if  not continue
         if (this.props.ownerData !== prevProps.ownerData) {
+            // When component updates get ownerData from props
+            // store the data in state            
             const ownerData = this.props.ownerData;
-
             this.setState({
                 loadedOwenerData: ownerData
             })
@@ -79,10 +92,13 @@ class CourseForm extends Component {
     }
 
     componentDidMount() {
-        console.log(this)
+        // get current location
+        // current location tells us if the user is creating or updating a course
         const currentLocation = this.props.history.location.pathname
         const buttonText = (currentLocation === '/courses/create') ? 'Create' : 'Update';
   
+        // store current location for future reference
+        // Update the button text to show if the user is updating or creating a course
         this.setState({
             formLocation: currentLocation,
             buttonText: buttonText
@@ -90,14 +106,19 @@ class CourseForm extends Component {
     }
 
     componentWillUnmount() {
+        // call sendData with false to cancel stat updates
         sendData(false)
     }
 
     submitForm = () => {
+        // On submit get current location from state
         const currentLocation = this.state.formLocation;
         let url = '';
         let method = ''
 
+        // depending on the current location
+        // we are creating or updating a course
+        // So the api call should be build correctly:
         switch(currentLocation) {
             case '/courses/create':
                 url = 'http://localhost:5000/api/courses';
@@ -108,9 +129,10 @@ class CourseForm extends Component {
                 method = 'put';
                 break;
             default:
-                console.log(currentLocation);
+                // unknow location
         }
 
+        // construct postData to send
         const postData = {
             user: [this.state.loadedOwenerData._id],
             title: this.state.title,
@@ -120,8 +142,10 @@ class CourseForm extends Component {
         }
 
         try {
+            // call sendData with the current url, method and data and give it the JWT token name
             sendData(true, url, method, postData, 'tucan').then((response) => {
 
+                // TODO what should we do on success?!
                 this.setState({
                     loading: false,
                     response: response
@@ -139,8 +163,13 @@ class CourseForm extends Component {
     }
 
     formValidation = () => {
+        // form input is in current state
         const currentState = this.state;
+        // create an emprty array that holds the errors
         let errorValues = [];
+
+        // loop over the current state items
+        // If ones value is empty add it to the error array
         Object.keys(currentState).forEach((item) => {
             if (currentState[item] === '') {
                 errorValues.push({
@@ -149,23 +178,29 @@ class CourseForm extends Component {
             }
         })
 
+        // Set the errors on state including existing once
         this.setState( prevState => ({
             error: {...prevState.error, errorValues}
         }))
 
+        // If errors stop script
         if (errorValues.length > 0) {
             return;
         }
 
+        // continue to form submit
         this.submitForm()
     }
 
     handleSubmit = (e) => {
+        // prevent default fomr behaviour
         e.preventDefault();
+        // start form validation
         this.formValidation()
     }
 
     handleCancel = (e) => {
+        // User clicked cancel, empty everything and redirect to courses
         e.preventDefault();
         this.setState({
             title: '',
@@ -182,6 +217,8 @@ class CourseForm extends Component {
     }
 
     render() {
+        // get error data
+        // if errors create error list and bring to view
         const errorData = this.state.error;
         let errorList = [];
         let Owner = [];
@@ -192,6 +229,8 @@ class CourseForm extends Component {
             errorList = <ErrorList errorObject={errorObject} />;
         }
 
+        // TODO NEED TO CREATE CORRECT BEHAVIOUR
+        // show course owner name
         if (this.state.loadedOwenerData) {
             Owner = <p>By {this.state.loadedOwenerData.firstName} {this.state.loadedOwenerData.lastName}</p>;
         } else {

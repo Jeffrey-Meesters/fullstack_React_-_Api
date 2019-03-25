@@ -30,11 +30,13 @@ class UpdateCourse extends Component {
 
   async componentDidMount() {
     try {
+      // Get requested course data
       await axios.get(`http://localhost:5000/api/courses/${this.props.match.params.courseId}`, this.state.postData).then((response) => {
         this.setState({
           courseData: response.data
         });
         
+        // get course owner data with owner id
         this.getOwner(response.data.user);
 
       }).catch((error) => {
@@ -45,8 +47,8 @@ class UpdateCourse extends Component {
     }  
   }
 
+  // pass all fetched data down to CourseForm
   render() {
-    console.log(this.state.ownerData)
     return (
       <div className="bounds course--detail">
         <h1>Update Course</h1>

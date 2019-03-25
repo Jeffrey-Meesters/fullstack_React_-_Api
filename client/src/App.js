@@ -5,13 +5,10 @@ import { createBrowserHistory } from 'history';
 
 import RoutesComponent from './components/RoutesComponent';
 
-// I had some trouble figuring out nested routes within a switch
-// found the solution here: https://stackoverflow.com/questions/41474134/nested-routes-with-react-router-v4
-
 const history = createBrowserHistory();
 
 class App extends Component {
-
+  // App instatiates router with history
   render() {
     return (
       <Router history={ history } >

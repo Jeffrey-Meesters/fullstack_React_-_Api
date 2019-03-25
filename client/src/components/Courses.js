@@ -8,6 +8,10 @@ class Courses extends Component {
 
   constructor() {
     super();
+    // I had a memory leak when an api call has been made
+    // that resolved after the component unmounted and tried to set state, which is a no-op
+    // When mounting this is false, when unmounting this is true
+    // Use this boolean to determine if state should be set
     this._isMounted = false;
     this.state = {
       loading: true,
@@ -15,7 +19,9 @@ class Courses extends Component {
     }
   }
  
-  getCourseData = async () => {
+  getCourseData = () => {
+
+    // TODO check if this postdata is still needed, or that we can switch to JWT
     const postData = {
       name: 'gerrit@gmail.com',
       password: 'gerrit',
@@ -23,6 +29,8 @@ class Courses extends Component {
     
     try {
       axios.get('http://localhost:5000/api/courses', postData).then((response) => {
+
+        // If component is still mounted set state
         if (this._isMounted) {
           this.setState({
             loading: false,
@@ -45,6 +53,7 @@ class Courses extends Component {
   }
 
   componentWillUnmount() {
+    // set isMounted to false so state does not get updated when this component unmounts
     this._isMounted = false;
   }
 
