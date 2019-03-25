@@ -12,6 +12,9 @@ import UpdateCourse         from './UpdateCourse';
 import CourseDetail         from './CourseDetail';
 import UserSignIn           from './UserSignIn';
 import UserSignUp           from './UserSignUp';
+import NotFound             from './NotFound';
+import UnhandledError       from './UnhandledError';
+import Forbidden            from './Forbidden';
 
 import { checkAuth }        from '../helpers/checkAuth'
 
@@ -22,7 +25,6 @@ class RoutesComponent extends Component {
             userOptions: {},
             isAuth: false,
             cachKey: 'tucan',
-            isLoading: true,
             previousePath: ''
         }
     }
@@ -43,23 +45,30 @@ class RoutesComponent extends Component {
         if (shouldListen) {
             // listen is a method on the history object which is called when a route changes
             history.listen((location) => {
-
                 // get the cached token. The name of the token is in state
                 const cachedToken = localStorage.getItem(this.state.cachKey);
                 
                 // If there is no cached token, and the current route is not signin
-                if(!cachedToken && location.pathname !== '/signin') {
+                if(!cachedToken && location.pathname !== '/signin' && location.pathname !== '/signup') {
                     // set previous path to /signin and redirect to signin
+                    // And reset state
                     // then stop the script
                     this.setState({
-                        previousePath: '/signin'
+                        userOptions: {
+                            userId: '',
+                            firstName: '',
+                            lastName: '',
+                            token: ''
+                        },
+                        previousePath: '/signin',
+                        isAuth: false,
                     })
-
+                    
                     this.props.history.push('/signin')
                     return;
                 }
                 
-                if (location.pathname !== this.state.previousePath) {
+                if (cachedToken && location.pathname !== this.state.previousePath) {
                     // If current route does not equal the previouse path check if the user is allowed to access.
 
                     // checkout is defined in the helpers/checkout.js file.
@@ -70,7 +79,6 @@ class RoutesComponent extends Component {
                         // isAuth is a boolean
                         this.setState({
                             isAuth: isAuth,
-                            isLoading: false,
                             previousePath: location.pathname
                         })
                         
@@ -78,6 +86,16 @@ class RoutesComponent extends Component {
                         // redirect to the sign in screen
                         // any JWT in storage is removed by checkAuth
                         if (!isAuth) {
+                            // And reset state
+                            this.setState({
+                                userOptions: {
+                                    userId: '',
+                                    firstName: '',
+                                    lastName: '',
+                                    token: ''
+                                }
+                            })
+
                             this.props.history.push('/signin')
                         }
 
@@ -86,7 +104,7 @@ class RoutesComponent extends Component {
             })
         } else {
             
-            // Component did unmount so ampty listener
+            // Component did unmount so empty listener
             history.listen();
         
         }
@@ -102,7 +120,6 @@ class RoutesComponent extends Component {
   
                 this.setState({
                     isAuth: isAuth,
-                    isLoading: false,
                     previousePath: this.props.history.location.pathname
                 })
 
@@ -118,6 +135,17 @@ class RoutesComponent extends Component {
         // if there is no cached token and the user is not already on /signin or signup
         // redirect user to signgin
         } else if (this.props.history.location.pathname !== '/signin' && this.props.history.location.pathname !== '/signup') {
+            // And reset state
+            this.setState({
+                userOptions: {
+                    userId: '',
+                    firstName: '',
+                    lastName: '',
+                    token: ''
+                },
+                isAuth: false,
+            })
+            
             this.props.history.push('/signin')
         }
         
@@ -137,13 +165,16 @@ class RoutesComponent extends Component {
         // when the user correctly authenticates by form submit
 
         if (data.token) {
+            console.log(data)
             this.setState({
                 userOptions: {
+                    id: data.id,
                     userId: data.email,
+                    firstName: data.firstName,
+                    lastName: data.lastName,
                     token: data.token
                 },
-                isAuth: true,
-                isLoading: false,
+                isAuth: true
             })
       
             // I store it in state so it persist when refreshing the page
@@ -158,7 +189,7 @@ class RoutesComponent extends Component {
     render() {
         return (
             <div className="Router">
-                <Header />
+                <Header userData={this.state.userOptions} isAuth={this.state.isAuth} history={ this.props.history}/>
                 <Switch>
                 <Redirect from="/" exact to="/courses" />
                 <Route
@@ -173,18 +204,29 @@ class RoutesComponent extends Component {
                             Else render redirect component witch redirects to /signin
                         
                         */}
-                        <Route exact path={ `${url}/create` } render={ 
-                            () => (this.state.isAuth) ? <CreateCourse history={ this.props.history } /> : <Redirect to="/signin" />
+                        
+                        <Route exact path={ `${url}/create` } render={
+                            (props) => (this.state.isAuth) ? 
+                            <CreateCourse {...props} history={ this.props.history } userDetails={this.state.userOptions} /> : 
+                            <Redirect to="/signin" /> 
                         } />
-                        <Route exact path={ `${url}/:courseId/detail` } component={CourseDetail} />
-                        <Route exact path={ `${url}/:courseId/detail/update` } component={UpdateCourse} />
+                        
+                        <Route exact path={ `${url}/:courseId/detail` } render={
+                            (props) => <CourseDetail {...props} userDetails={this.state.userOptions} /> 
+                        } />
+                        
+                        <Route exact path={ `${url}/:courseId/detail/update` } render={
+                            (props) => <UpdateCourse {...props} userDetails={this.state.userOptions} /> 
+                        } />
                     </>
                     )}
                 />
                 <Route exact path="/signin" render={() => <UserSignIn history={ this.props.history } isSignedIn={this.userSignIn} />} />
-                <Route exact path="/signup" component={UserSignUp} />
-                <Route exact path="/sigout" />
-                {/* <Route component={NoMatch} /> */}
+                <Route exact path="/signup" render={() => <UserSignUp history={ this.props.history } />} />
+                <Route exact path="/signout" />
+                <Route exact path="/forbidden" component={Forbidden} />
+                <Route exact path="/error" component={UnhandledError} />
+                <Route component={NotFound} />
                 </Switch>
             </div>
         )

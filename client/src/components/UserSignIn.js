@@ -67,9 +67,13 @@ class UserSignIn extends Component {
         // store the users email and JWT token we got from the api
         // isSignedIn is a method call in the parent (RoutesComponent)
         // So the auth state is hoisted to the component that has all the routes
+        console.log(1, response.data)
         this.props.isSignedIn({
           loading: false,
-          userMail: response.data.currentUser,
+          id: response.data.currentUser._id,
+          userMail: response.data.currentUser.emailAddress,
+          firstName: response.data.currentUser.firstName,
+          lastName: response.data.currentUser.lastName,
           token: response.data.jwtToken
         })
         // redirect to the courses
@@ -127,6 +131,8 @@ class UserSignIn extends Component {
       password: '',
       formErrors: []
     })
+
+    this.props.history.push('/courses')
   }
 
   // User click on the form submit button
@@ -170,7 +176,7 @@ class UserSignIn extends Component {
             </form>
           </div>
           <p>&nbsp;</p>
-          <p>Don't have a user account? <Link to="/signup">Click here</Link> to sign up!</p>
+          <p>Don't have a user account? <Link to="signup"> Click here</Link> to sign up!</p>
         </div>
       </div>
     )

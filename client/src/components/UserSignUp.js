@@ -129,6 +129,7 @@ class UserSignUp extends Component {
       confirmPass: '',
       formErrors: []
     })
+    this.props.history.push('/courses')
   }
 
   handleSubmit = (e) => {

@@ -52,7 +52,7 @@ class UpdateCourse extends Component {
     return (
       <div className="bounds course--detail">
         <h1>Update Course</h1>
-        <CourseForm history={this.props.history} courseId={this.props.match.params.courseId} courseData={this.state.courseData} ownerData={this.state.ownerData} />
+        <CourseForm history={this.props.history} courseId={this.props.match.params.courseId} courseData={this.state.courseData} ownerData={this.state.ownerData} userDetails={this.props.userDetails} />
       </div>
     )
   }

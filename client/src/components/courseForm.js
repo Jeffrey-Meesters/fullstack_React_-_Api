@@ -96,7 +96,6 @@ class CourseForm extends Component {
         // current location tells us if the user is creating or updating a course
         const currentLocation = this.props.history.location.pathname
         const buttonText = (currentLocation === '/courses/create') ? 'Create' : 'Update';
-  
         // store current location for future reference
         // Update the button text to show if the user is updating or creating a course
         this.setState({
@@ -115,17 +114,18 @@ class CourseForm extends Component {
         const currentLocation = this.state.formLocation;
         let url = '';
         let method = ''
+        let postData = {};
 
         // depending on the current location
         // we are creating or updating a course
         // So the api call should be build correctly:
         switch(currentLocation) {
             case '/courses/create':
-                url = 'http://localhost:5000/api/courses';
+                url = '/courses';
                 method = 'post';
                 break;
             case `/courses/${this.props.courseId}/detail/update`:
-                url = `http://localhost:5000/api/courses/${this.props.courseId}`;
+                url = `/courses/${this.props.courseId}`;
                 method = 'put';
                 break;
             default:
@@ -133,13 +133,27 @@ class CourseForm extends Component {
         }
 
         // construct postData to send
-        const postData = {
-            user: [this.state.loadedOwenerData._id],
-            title: this.state.title,
-            description: this.state.description,
-            estimatedTime: this.state.estimatedTime,
-            materialsNeeded: this.state.materialsNeeded,
+        if (method === 'post') {
+            postData = {
+                user: [this.props.userDetails.id],
+                title: this.state.title,
+                description: this.state.description,
+                estimatedTime: this.state.estimatedTime,
+                materialsNeeded: this.state.materialsNeeded,
+            }
+        } else if (method === 'put' && this.state.loadedOwenerData._id === this.props.userDetails.id) {
+            postData = {
+                user: [this.state.loadedOwenerData._id],
+                title: this.state.title,
+                description: this.state.description,
+                estimatedTime: this.state.estimatedTime,
+                materialsNeeded: this.state.materialsNeeded,
+            }
+        } else {
+            // update is not allowed
+            console.log('not allowed')
         }
+
 
         try {
             // call sendData with the current url, method and data and give it the JWT token name
@@ -213,7 +227,11 @@ class CourseForm extends Component {
             response: [],
             loadedOwenerData: []
         })
-        this.props.history.push('/courses')
+        if (this.props.courseId) {
+            this.props.history.push(`/courses/${this.props.courseId}/detail`)
+        } else {
+            this.props.history.push('/courses')
+        }
     }
 
     render() {

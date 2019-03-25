@@ -21,11 +21,13 @@ export async function getData(shouldLoad, url) {
   }
 }
 
-export async function sendData(shouldLoad, url, method, postData) {
+export async function sendData(shouldLoad, uri, method, postData) {
   // shouldLoad is false in componentWillUnmount I found out it will cancel data leaks in the form of setting state to unmounted components
   if (shouldLoad) {
     try {
       // send data to the api and return any response data else catch error
+      const url = `http://localhost:5000/api${uri}`;
+      console.log(method, url, postData)
       const data = await axios({
         method,
         url,
@@ -42,5 +44,26 @@ export async function sendData(shouldLoad, url, method, postData) {
     }
   } else {
     return false;
+  }
+}
+
+export async function deleteData(uri, cachedToken) {
+  try {
+    // send data to the api and return any response data else catch error
+    const url = `http://localhost:5000/api${uri}`;
+    const data = axios.delete(
+      url,
+      {
+      headers: {
+        'x-access-token': cachedToken
+      }
+    }).then(response => response.data)
+    .catch((error) => {
+      console.log('axios', error);
+    })
+    // return data to callee
+    return data;
+  } catch (error) {
+    console.log('url', error)
   }
 }

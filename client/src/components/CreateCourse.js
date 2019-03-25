@@ -7,7 +7,7 @@ class CreateCourse extends Component {
         return (
             <div className="bounds course--detail">
                 <h1>Create Course</h1>
-                <CourseForm history={this.props.history} />
+                <CourseForm history={this.props.history} userDetails={this.props.userDetails} />
             </div>
         )
     }

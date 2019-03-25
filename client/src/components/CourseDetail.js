@@ -3,7 +3,7 @@ import { Link }             from "react-router-dom";
 
 import MarkDown             from '../elements/MarkDown';
 
-import { getData } from '../helpers/callApi';
+import { getData, deleteData } from '../helpers/callApi';
 
 class CourseDetails extends Component {
   constructor(props) {
@@ -11,7 +11,7 @@ class CourseDetails extends Component {
 
     this.state = {
       courseData: [],
-      ownerData: []
+      ownerData: [],
     }
   }
 
@@ -26,12 +26,19 @@ class CourseDetails extends Component {
 
   componentWillMount() {
     getData(true, `/courses/${this.props.match.params.courseId}`).then((courseDetails) => {
+      
+      let isOwner = false;
+      if (courseDetails.user[0] === this.props.userDetails.id) {
+        isOwner = true;
+      }
 
       this.setState({
         courseData: courseDetails,
+        isOwner: isOwner
       });
 
-      this.getOwner(courseDetails.user)
+      this.getOwner(courseDetails.user[0]);
+    
     })
   }
 
@@ -39,9 +46,28 @@ class CourseDetails extends Component {
     getData(false);
   }
 
+  deleteCourse = () => {
+    if (this.state.isOwner) {
+      const cachedToken = localStorage.getItem('tucan');
+      deleteData(`/courses/${this.props.match.params.courseId}`, cachedToken).then((response) => {
+        console.log(response)
+      })
+    } else {
+      // redirect to now allowed
+    }
+  }
+
   render() {
     const courseData = this.state.courseData;
     const ownerData = this.state.ownerData;
+    let updateLink;
+    let deleteLink;
+    console.log('çourse', courseData)
+    console.log('owner', ownerData)
+    if (this.state.isOwner) {
+      updateLink = <Link className="button" to={`${this.props.match.url}/update`} >Update Course</Link>;
+      deleteLink = <a className="button" onClick={this.deleteCourse}> Delete Course </a>;
+    }
 
     return (
       <div>
@@ -49,12 +75,8 @@ class CourseDetails extends Component {
           <div className="bounds">
             <div className="grid-100">
               <span>
-                <Link className="button" to={`${this.props.match.url}/update`} >
-                  Update Course
-                </Link>
-                <Link className="button" to="/yolo">
-                  Delete Course
-                </Link>
+                {updateLink}
+                {deleteLink}
               </span>
               <Link className="button button-secondary" to="/courses">
                 Return to List

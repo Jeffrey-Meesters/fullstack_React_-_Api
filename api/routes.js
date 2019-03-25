@@ -74,9 +74,9 @@ router.get('/users', authenticateUser, (req, res, next) => {
     // because when the user is authenticated req.currentUser will exist
     // the status is 200 and return the current user
     if (req.currentUser) {
-        console.log('in route', req.jwtToken)
+        req.currentUser.password = 'secret ;)'
         const respData = {
-            currentUser: req.currentUser.emailAddress,
+            currentUser: req.currentUser,
             jwtToken: req.jwtToken
         }
         res.status(200).json(respData);
@@ -99,25 +99,18 @@ router.get('/owner/:ownerId', (req, res, next) => {
     // because when the user is authenticated req.currentUser will exist
     // the status is 200 and return the current user
     // if (req.currentUser) {
-
-        User.findOne({'id': router.param.ownerId}, (error, owner) => {
+console.log(req.params.ownerId)
+        User.findById(req.params.ownerId, (error, owner) => {
             if (error) {
                 console.warn('error in DB search', error);
                 res.status(401).json({message: 'Owner not found'})
             }
 
             if (owner) {
+                console.log(owner)
                 res.status(200).json(owner)
             }
         })
-    // } else {
-
-    //     // When this happens authentication succeeded, but something went wrong when setting
-    //     // the currentUser on the req object
-    //     console.warn('Auth was succesfull, but User is not found on the request object');
-    //     res.status(404).json({message: 'User not found'});
-
-    // }
 });
 
 // POST /users
@@ -202,7 +195,6 @@ router.post('/courses', [
     check('title').exists().withMessage('Please provide a title'),
     check('description').exists().withMessage('Please provide a description')
 ],
-authenticateUser,
 (req, res, next) => {
     const errors = validationResult(req);
 
@@ -215,6 +207,7 @@ authenticateUser,
         error.status = 400;
         next(error);
     } else {
+        console.log('WAAAAAHHHH', req.body)
         const course = new Course(req.body);
         if (course) {
             course.save((err, course) => {
@@ -240,9 +233,7 @@ router.put('/courses/:id', [
     check('title').exists().withMessage('Please provide a title'),
     check('description').exists().withMessage('Please provide a description')
 ],
-authenticateUser,
 (req, res, next) => {
-    console.log('reqy', req);
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
         const errorMessages = errors.array().map(error => error.msg);
@@ -302,47 +293,55 @@ authenticateUser,
 
 // DELETE /courses/:id
 //  Route for deleting a specific course
-router.delete('/courses/:id', authenticateUser, (req, res, next) => {
+router.delete('/courses/:id', (req, res, next) => {
 
-    const { currentUser } = req;
-    const ownerIds = req.course.user;
+    const token = req.headers['x-access-token'];
 
-    // A user may only delete a course if he/she is the owner
-    // So loop over owner ids
-    // check if the currentUser is the owner
-    // If so delete else forbid the user
-    ownerIds.forEach(id => {
-        // find a user by id
-        User.findById(id, (error, user) => {
-            if (error) {
-                return next(error)
-            }
+    // If token does exist continue, else token wasn't send
+    if (token) {
+        const tokenInfo = jwt.decode(token);
+        const ownerIds = req.course.user;
 
-            if (user) {
-                // emailAddresses should be unique
-                // So when the currentUser emailaddress does not match with the courses owner
-                // email adddress te currentUser may not delete it
-                if (currentUser.emailAddress !== user.emailAddress) {
-
-                    res.sendStatus(403)
-
-                } else {
-
-                    // remove the course from the DB
-                    req.course.remove((err) => {
-                        if(err) {
-                            return next(err);
-                        }
-
-                        res.sendStatus(204);
-                    })
-
+        // A user may only delete a course if he/she is the owner
+        // So loop over owner ids
+        // check if the currentUser is the owner
+        // If so delete else forbid the user
+        ownerIds.forEach(id => {
+            // find a user by id
+            User.findById(id, (error, user) => {
+                if (error) {
+                    return next(error)
                 }
-            } else {
-                res.status(403).json({message: 'User not found'})
-            }
-        })
-    });
+
+                if (user) {
+                    // emailAddresses should be unique
+                    // So when the currentUser emailaddress does not match with the courses owner
+                    // email adddress te currentUser may not delete it
+                    console.log(tokenInfo.name, user.emailAddress)
+                    if (tokenInfo.name !== user.emailAddress) {
+
+                        res.sendStatus(403)
+
+                    } else {
+
+                        // remove the course from the DB
+                        req.course.remove((err) => {
+                            if(err) {
+                                return next(err);
+                            }
+
+                            res.sendStatus(204);
+                        })
+
+                    }
+                } else {
+                    res.status(403).json({message: 'User not found'})
+                }
+            })
+        });
+    } else {
+        // no token
+    }
 });
 
 module.exports = router;
