@@ -50,7 +50,7 @@ class RoutesComponent extends Component {
                 const cachedToken = localStorage.getItem(this.state.cachKey);
                 
                 // If there is no cached token, and the current route is not signin
-                if(!cachedToken && location.pathname !== '/signin' && location.pathname !== '/signup') {
+                if(!cachedToken && location.pathname !== '/signin' && location.pathname !== '/signup' && location.pathname !== '/courses' && location.pathname !== '/forbidden') {
                     // set previous path to /signin and redirect to signin
                     // And reset state
                     // then stop the script
@@ -61,11 +61,11 @@ class RoutesComponent extends Component {
                             lastName: '',
                             token: ''
                         },
-                        previousePath: '/signin',
+                        previousePath: '/forbidden',
                         isAuth: false,
                     })
                     
-                    this.props.history.push('/signin')
+                    this.props.history.push('/forbidden')
                     return;
                 }
                 

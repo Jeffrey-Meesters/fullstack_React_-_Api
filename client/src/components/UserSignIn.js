@@ -124,7 +124,6 @@ class UserSignIn extends Component {
       password: '',
       formErrors: []
     })
-
     this.props.history.push('/courses')
   }
 
