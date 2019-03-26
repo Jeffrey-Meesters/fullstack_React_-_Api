@@ -68,16 +68,14 @@ class UserSignUp extends Component {
       password: this.state.password,
       twj: window.location.hostname,
     }
-    try {
-      // Send data to the api to create an user
-      await axios.post(`http://localhost:5000/api/users`, postData).then((response) => {
-        console.log(response)
-      }).catch((error) => {
-        console.log('axios', error);
-      })
-    } catch(error) {
-      console.log('url', error)
-    }  
+
+    // Send data to the api to create an user
+    await axios.post(`http://localhost:5000/api/users`, postData).then((response) => {
+      console.log(response)
+    }).catch((error) => {
+      console.log('axios', error);
+    })
+ 
   }
 
   validateForm = () => {

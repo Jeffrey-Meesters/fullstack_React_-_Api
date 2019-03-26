@@ -27,24 +27,19 @@ class Courses extends Component {
       password: 'gerrit',
     }
     
-    try {
-      axios.get('http://localhost:5000/api/courses', postData).then((response) => {
+    axios.get('http://localhost:5000/api/courses', postData).then((response) => {
 
-        // If component is still mounted set state
-        if (this._isMounted) {
-          this.setState({
-            loading: false,
-            coursesData: response.data
-          });
-        }
+      // If component is still mounted set state
+      if (this._isMounted) {
+        this.setState({
+          loading: false,
+          coursesData: response.data
+        });
+      }
 
-      }).catch((error) => {
-        console.log('axios', error);
-      })
-    } catch(error) {
-      console.log('url', error)
-    }
-    
+    }).catch((error) => {
+      console.log('axios', error);
+    })
   }
 
   componentDidMount() {

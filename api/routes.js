@@ -95,22 +95,16 @@ router.get('/users', authenticateUser, (req, res, next) => {
 // Route for getting current user
 // authenticateUser: user should be authenticated before this middleware executes
 router.get('/owner/:ownerId', (req, res, next) => {
-    // authenticateUser
-    // because when the user is authenticated req.currentUser will exist
-    // the status is 200 and return the current user
-    // if (req.currentUser) {
-console.log(req.params.ownerId)
-        User.findById(req.params.ownerId, (error, owner) => {
-            if (error) {
-                console.warn('error in DB search', error);
-                res.status(401).json({message: 'Owner not found'})
-            }
+    User.findById(req.params.ownerId, (error, owner) => {
+        if (error) {
+            console.warn('error in DB search', error);
+            res.status(401).json({message: 'Owner not found'})
+        }
 
-            if (owner) {
-                console.log(owner)
-                res.status(200).json(owner)
-            }
-        })
+        if (owner) {
+            res.status(200).json(owner)
+        }
+    })
 });
 
 // POST /users
@@ -207,7 +201,6 @@ router.post('/courses', [
         error.status = 400;
         next(error);
     } else {
-        console.log('WAAAAAHHHH', req.body)
         const course = new Course(req.body);
         if (course) {
             course.save((err, course) => {
@@ -215,7 +208,6 @@ router.post('/courses', [
                     return next(err);
                 }
 
-                console.log(course._id);
                 res.location(`/api/courses/${course._id}`);
                 res.sendStatus(201);
             })
@@ -274,7 +266,6 @@ router.put('/courses/:id', [
                     return next(error)
 
                 } else {
-                    console.log(req)
                     req.course.update(req.body, (err, data) => {
                         if(err) {
                             return next(err);
@@ -317,7 +308,6 @@ router.delete('/courses/:id', (req, res, next) => {
                     // emailAddresses should be unique
                     // So when the currentUser emailaddress does not match with the courses owner
                     // email adddress te currentUser may not delete it
-                    console.log(tokenInfo.name, user.emailAddress)
                     if (tokenInfo.name !== user.emailAddress) {
 
                         res.sendStatus(403)

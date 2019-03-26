@@ -14,37 +14,29 @@ class UpdateCourse extends Component {
   }
 
   async getOwner(ownerId) {
-    try {
-      await axios.get(`http://localhost:5000/api/owner/${ownerId}`, this.state.postData).then((response) => {
-        this.setState({
-          loading: false,
-          ownerData: response.data
-        });
-      }).catch((error) => {
-        console.log('axios', error);
-      })
-    } catch(error) {
-      console.log('url', error)
-    }  
+    await axios.get(`http://localhost:5000/api/owner/${ownerId}`, this.state.postData).then((response) => {
+      this.setState({
+        loading: false,
+        ownerData: response.data
+      });
+    }).catch((error) => {
+      console.log('axios', error);
+    }) 
   }
 
   async componentDidMount() {
-    try {
-      // Get requested course data
-      await axios.get(`http://localhost:5000/api/courses/${this.props.match.params.courseId}`, this.state.postData).then((response) => {
-        this.setState({
-          courseData: response.data
-        });
-        
-        // get course owner data with owner id
-        this.getOwner(response.data.user);
+    // Get requested course data
+    await axios.get(`http://localhost:5000/api/courses/${this.props.match.params.courseId}`, this.state.postData).then((response) => {
+      this.setState({
+        courseData: response.data
+      });
+      
+      // get course owner data with owner id
+      this.getOwner(response.data.user);
 
-      }).catch((error) => {
-        console.log('axios', error);
-      })
-    } catch(error) {
-      console.log('url', error)
-    }  
+    }).catch((error) => {
+      console.log('axios', error);
+    }) 
   }
 
   // pass all fetched data down to CourseForm

@@ -25,6 +25,7 @@ class RoutesComponent extends Component {
             userOptions: {},
             isAuth: false,
             cachKey: 'tucan',
+            useKey: 'didNotWantThis',
             previousePath: ''
         }
     }
@@ -110,7 +111,23 @@ class RoutesComponent extends Component {
         }
     }
 
+    componentWillMount() {
+        const cachedUserData = JSON.parse(localStorage.getItem(this.state.useKey)) || {};
+        if (!this.state.userOptions.firstName && cachedUserData.firstName) {
+            this.setState({
+                userOptions: {
+                    id: cachedUserData.id,
+                    userId: cachedUserData.userId,
+                    firstName: cachedUserData.firstName,
+                    lastName: cachedUserData.lastName,
+                    token: cachedUserData.token
+                }
+            })
+        }
+    }
+
     componentDidMount() {
+
         // get cachedToken
         const cachedToken = localStorage.getItem(this.state.cachKey);
 
@@ -165,11 +182,10 @@ class RoutesComponent extends Component {
         // when the user correctly authenticates by form submit
 
         if (data.token) {
-            console.log(data)
             this.setState({
                 userOptions: {
                     id: data.id,
-                    userId: data.email,
+                    userId: data.userMail,
                     firstName: data.firstName,
                     lastName: data.lastName,
                     token: data.token
@@ -179,6 +195,14 @@ class RoutesComponent extends Component {
       
             // I store it in state so it persist when refreshing the page
             // The apps state would be reseted on refresh
+            // To set an object in storage you need to stringify it else it will be an [Object Object]
+            localStorage.setItem(this.state.useKey, JSON.stringify({
+                id: data.id,
+                userId: data.userMail,
+                firstName: data.firstName,
+                lastName: data.lastName,
+                token: data.token
+            }))
             localStorage.setItem(this.state.cachKey, data.token);
         }
     }

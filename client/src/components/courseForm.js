@@ -154,26 +154,21 @@ class CourseForm extends Component {
             console.log('not allowed')
         }
 
+        // call sendData with the current url, method and data and give it the JWT token name
+        sendData(true, url, method, postData, 'tucan').then((response) => {
 
-        try {
-            // call sendData with the current url, method and data and give it the JWT token name
-            sendData(true, url, method, postData, 'tucan').then((response) => {
+            // TODO what should we do on success?!
+            this.setState({
+                loading: false,
+                response: response
+            });
 
-                // TODO what should we do on success?!
-                this.setState({
-                    loading: false,
-                    response: response
-                });
-
-            }).catch((error) => {
-                let errorValues = [error.response.data];
-                this.setState(prevState => ({
-                    error: { ...prevState.error, errorValues }
-                }))
-            })
-        } catch (error) {
-            console.log('url', error)
-        }
+        }).catch((error) => {
+            let errorValues = [error.response.data];
+            this.setState(prevState => ({
+                error: { ...prevState.error, errorValues }
+            }))
+        })
     }
 
     formValidation = () => {

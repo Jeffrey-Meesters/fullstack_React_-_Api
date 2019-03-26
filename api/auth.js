@@ -17,7 +17,6 @@ const authenticateUser = (req, res, next) => {
             }
 
             if (user) {
-                console.log(user)
                 // We found a user with this email address.
                 // So use bcrypt to compare the hashed password with the given password
                 const authenticated = bcrypt.compareSync(credentials.pass, user.password);
