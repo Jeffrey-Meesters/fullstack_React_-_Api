@@ -73,7 +73,7 @@ class UserSignUp extends Component {
     await axios.post(`http://localhost:5000/api/users`, postData).then((response) => {
       console.log(response)
     }).catch((error) => {
-      console.log('axios', error);
+      this.props.history.push('/error')
     })
  
   }

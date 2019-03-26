@@ -10,27 +10,7 @@ const Course = require("./models").Course;
 const authenticateUser = require("./auth").authenticateUser;
 const jwt = require("./jwt");
 
-// This is a router param
-// Created to easely retrieve courses by ID
-router.param("id", (req, res, next, id) => {
-    Course.findById(id, (err, doc) => {
-        if(err) {
-            return next(err);
-        }
-
-        if(!doc) {
-            err = new Error("Not found");
-            err.status = 404;
-            return next(err);
-        }
-
-        // set the found course on the request object
-        req.course = doc;
-        return next();
-    })
-})
-
-router.get('/tokenAuth', (req, res, next) => {
+const readToken = (req, res, next) => {
     const token = req.headers['x-access-token'];
 
     // If token does exist continue, else token wasn't send
@@ -52,7 +32,8 @@ router.get('/tokenAuth', (req, res, next) => {
             // to check data against our DB
             // But for this course this seems fine for now
             if (verified && verified.name === verified.sub) {
-                res.sendStatus(200)
+                req.tokenIsGood = verified;
+                next()
             } else {
                 res.status(403).json({message: 'Access denied'});
             }
@@ -62,7 +43,36 @@ router.get('/tokenAuth', (req, res, next) => {
             // token is invalid flag user as not auth
         }
     } else {
-        res.status(403).json({message: 'Could not get Auth token'})
+        res.status(403).json({message: 'Could not get Auth token'});
+    }
+}
+
+// This is a router param
+// Created to easely retrieve courses by ID
+router.param("id", (req, res, next, id) => {
+    Course.findById(id, (err, doc) => {
+        if(err) {
+            return next(err);
+        }
+
+        if(!doc) {
+            err = new Error("Not found");
+            err.status = 404;
+            return next(err);
+        }
+
+        // set the found course on the request object
+        req.course = doc;
+        return next();
+    })
+})
+
+router.get('/tokenAuth', readToken, (req, res, next) => {
+    if (req.tokenIsGood) {
+        res.sendStatus(200)
+    } else {
+        // just to be sure, the readToken should've done this already
+        res.status(403).json({message: 'Could not get Auth token'});
     }
 })
 
@@ -92,19 +102,21 @@ router.get('/users', authenticateUser, (req, res, next) => {
 });
 
 // GET /users
-// Route for getting current user
+// Route for getting current user/owner
 // authenticateUser: user should be authenticated before this middleware executes
-router.get('/owner/:ownerId', (req, res, next) => {
-    User.findById(req.params.ownerId, (error, owner) => {
-        if (error) {
-            console.warn('error in DB search', error);
-            res.status(401).json({message: 'Owner not found'})
-        }
+router.get('/owner/:ownerId', readToken, (req, res, next) => {
+    if (req.tokenIsGood) {
+        User.findById(req.params.ownerId, (error, owner) => {
+            if (error) {
+                console.warn('error in DB search', error);
+                res.status(401).json({message: 'Owner not found'})
+            }
 
-        if (owner) {
-            res.status(200).json(owner)
-        }
-    })
+            if (owner) {
+                res.status(200).json(owner)
+            }
+        })
+    }
 });
 
 // POST /users
@@ -115,7 +127,8 @@ router.post('/users', [
     check('lastName').exists().withMessage('Please provide a lastName'),
     check('emailAddress').exists().withMessage('Please provide a emailAddress'),
     check('password').exists().withMessage('Please provide a password'),
-], (req, res, next) => {
+],
+(req, res, next) => {
     const errors = validationResult(req);
 
     // If there are errors send the error messages to the user
@@ -189,31 +202,34 @@ router.post('/courses', [
     check('title').exists().withMessage('Please provide a title'),
     check('description').exists().withMessage('Please provide a description')
 ],
+readToken,
 (req, res, next) => {
-    const errors = validationResult(req);
+    if (req.tokenIsGood) {
+        const errors = validationResult(req);
 
-    if (!errors.isEmpty()) {
-        const errorMessages = errors.array().map(error => error.msg);
-        res.status(400);
-        res.json(errorMessages);
-    } else if (!req.body.user || !req.body.title || !req.body.description ) {
-        const error = new Error('Please provide: user, title and description');
-        error.status = 400;
-        next(error);
-    } else {
-        const course = new Course(req.body);
-        if (course) {
-            course.save((err, course) => {
-                if(err) {
-                    return next(err);
-                }
-
-                res.location(`/api/courses/${course._id}`);
-                res.sendStatus(201);
-            })
-        } else {
-            const error = new Error('Course information not found');
+        if (!errors.isEmpty()) {
+            const errorMessages = errors.array().map(error => error.msg);
+            res.status(400);
+            res.json(errorMessages);
+        } else if (!req.body.user || !req.body.title || !req.body.description ) {
+            const error = new Error('Please provide: user, title and description');
+            error.status = 400;
             next(error);
+        } else {
+            const course = new Course(req.body);
+            if (course) {
+                course.save((err, course) => {
+                    if(err) {
+                        return next(err);
+                    }
+
+                    res.location(`/api/courses/${course._id}`);
+                    res.sendStatus(201);
+                })
+            } else {
+                const error = new Error('Course information not found');
+                next(error);
+            }
         }
     }
 });
@@ -225,72 +241,71 @@ router.put('/courses/:id', [
     check('title').exists().withMessage('Please provide a title'),
     check('description').exists().withMessage('Please provide a description')
 ],
+readToken,
 (req, res, next) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-        const errorMessages = errors.array().map(error => error.msg);
-        res.status(400);
-        res.json(errorMessages);
-    } else if (!req.course.user || !req.course.title || !req.course.description) {
-        const error = new Error('Please provide: user, title and description');
-        error.status = 400;
-        return next(error);
-    }
+    if (req.tokenIsGood) {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            const errorMessages = errors.array().map(error => error.msg);
+            res.status(400);
+            res.json(errorMessages);
+        } else if (!req.course.user || !req.course.title || !req.course.description) {
+            const error = new Error('Please provide: user, title and description');
+            error.status = 400;
+            return next(error);
+        }
 
-    // Object destructuring to get the currentUser from the req object
-    // Got a linter warning on this at work and find it awesome :p
-    const { currentUser } = req;
-    const ownerIds = req.course.user;
+        // Object destructuring to get the currentUser from the req object
+        // Got a linter warning on this at work and find it awesome :p
 
-    // A user may only update a course if he/she is the owner
-    // So loop over owner ids
-    // check if the currentUser is the owner
-    // If so update else forbid the user
+        const ownerIds = req.course.user;
 
-    // The id is inside an array
-    // instead of using [0] I decided to use a foreach loop
-    // when more users are associated with a course
-    ownerIds.forEach(id => {
-        User.findById(id, (error, user) => {
-            if (error) {
-                return next(error)
-            }
+        // A user may only update a course if he/she is the owner
+        // So loop over owner ids
+        // check if the currentUser is the owner
+        // If so update else forbid the user
 
-            if (user) {
-                // emailAddresses should be unique
-                // So when the currentUser emailaddress does not match with the courses owner
-                // email adddress te currentUser may not update it
-                if (currentUser.emailAddress !== user.emailAddress) {
-                    const error = new Error('You\'re not allowed to change this course.');
-                    error.status = 403;
+        // The id is inside an array
+        // instead of using [0] I decided to use a foreach loop
+        // when more users are associated with a course
+        ownerIds.forEach(id => {
+            User.findById(id, (error, user) => {
+                if (error) {
                     return next(error)
-
-                } else {
-                    req.course.update(req.body, (err, data) => {
-                        if(err) {
-                            return next(err);
-                        }
-
-                        res.sendStatus(201)
-                    });
-
                 }
-            } else {
-                res.status(403).json({message: 'User not found'})
-            }
-        })
-    });
+
+                if (user) {
+                    // emailAddresses should be unique
+                    // So when the currentUser emailaddress does not match with the courses owner
+                    // email adddress te currentUser may not update it
+                    if (req.tokenIsGood.name !== user.emailAddress) {
+                        const error = new Error('You\'re not allowed to change this course.');
+                        error.status = 403;
+                        return next(error)
+
+                    } else {
+                        req.course.update(req.body, (err, data) => {
+                            if(err) {
+                                return next(err);
+                            }
+
+                            res.sendStatus(201)
+                        });
+
+                    }
+                } else {
+                    res.status(403).json({message: 'User not found'})
+                }
+            })
+        });
+    }
 });
 
 // DELETE /courses/:id
 //  Route for deleting a specific course
-router.delete('/courses/:id', (req, res, next) => {
-
-    const token = req.headers['x-access-token'];
-
+router.delete('/courses/:id', readToken, (req, res, next) => {
     // If token does exist continue, else token wasn't send
-    if (token) {
-        const tokenInfo = jwt.decode(token);
+    if (req.tokenIsGood) {
         const ownerIds = req.course.user;
 
         // A user may only delete a course if he/she is the owner
@@ -308,7 +323,7 @@ router.delete('/courses/:id', (req, res, next) => {
                     // emailAddresses should be unique
                     // So when the currentUser emailaddress does not match with the courses owner
                     // email adddress te currentUser may not delete it
-                    if (tokenInfo.name !== user.emailAddress) {
+                    if (req.tokenIsGood.name !== user.emailAddress) {
 
                         res.sendStatus(403)
 
@@ -329,8 +344,6 @@ router.delete('/courses/:id', (req, res, next) => {
                 }
             })
         });
-    } else {
-        // no token
     }
 });
 

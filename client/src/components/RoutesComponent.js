@@ -220,7 +220,7 @@ class RoutesComponent extends Component {
                     path="/courses"
                     render={({ match: { url } }) => (
                     <>
-                        <Route exact path={ `${url}` } component={Courses} />
+                        <Route exact path={ `${url}` } render={ () => <Courses history={ this.props.history } />} />
                         
                         {/* 
                             This is a protected route

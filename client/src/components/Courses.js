@@ -38,7 +38,7 @@ class Courses extends Component {
       }
 
     }).catch((error) => {
-      console.log('axios', error);
+      this.props.history.push('/error')
     })
   }
 

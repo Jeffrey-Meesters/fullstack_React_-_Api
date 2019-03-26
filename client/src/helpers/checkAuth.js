@@ -34,9 +34,8 @@ export async function checkAuth(shouldCheck, cachedToken, key) {
                     return false;
                 }
 
-            }).catch((error) => {
-                // Soemthing went wrong while calling the api
-                console.log('errr', error)
+            }).catch(() => {
+                // Something went wrong, remove token to be sure
                 removeToken(key)
                 return false;
 

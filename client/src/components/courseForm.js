@@ -79,16 +79,12 @@ class CourseForm extends Component {
             })
         }
 
-        // check if props ownerData is the same as previous props ownerData
-        // if  not continue
         if (this.props.ownerData !== prevProps.ownerData) {
-            // When component updates get ownerData from props
-            // store the data in state            
             const ownerData = this.props.ownerData;
             this.setState({
                 loadedOwenerData: ownerData
             })
-        }
+        }           
     }
 
     componentDidMount() {
@@ -150,18 +146,19 @@ class CourseForm extends Component {
                 materialsNeeded: this.state.materialsNeeded,
             }
         } else {
-            // update is not allowed
-            console.log('not allowed')
+            // method is unknown OR you managed to trigger an update (which i think is more likely)
+            // updateing is not allowed when owner id and current user id are not the same
+            // so you ended up here.. this is forbidden
+            // don't worry, back-end is checking again
+            this.props.history.push('/forbidden');
+            return;
         }
 
-        // call sendData with the current url, method and data and give it the JWT token name
-        sendData(true, url, method, postData, 'tucan').then((response) => {
+        // call sendData with the current url, method and data and give it the JWT token
+        const cachedToken = localStorage.getItem('tucan');
+        sendData(true, url, method, postData, cachedToken).then((response) => {
 
-            // TODO what should we do on success?!
-            this.setState({
-                loading: false,
-                response: response
-            });
+            this.props.history.push('/courses')
 
         }).catch((error) => {
             let errorValues = [error.response.data];

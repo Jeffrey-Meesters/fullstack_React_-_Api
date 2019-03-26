@@ -14,19 +14,29 @@ class UpdateCourse extends Component {
   }
 
   async getOwner(ownerId) {
-    await axios.get(`http://localhost:5000/api/owner/${ownerId}`, this.state.postData).then((response) => {
+    const cachedToken = localStorage.getItem('tucan');
+    await axios.get(`http://localhost:5000/api/owner/${ownerId}`, {
+      headers: {
+        'x-access-token': cachedToken
+      }
+    }).then((response) => {
+
+      if (this.props.userDetails.id !== response.data._id) {
+        this.props.history.push('/forbidden');
+        return;
+      }
       this.setState({
         loading: false,
         ownerData: response.data
       });
     }).catch((error) => {
-      console.log('axios', error);
+      this.props.history.push('/error')
     }) 
   }
 
-  async componentDidMount() {
+  async componentWillMount() {
     // Get requested course data
-    await axios.get(`http://localhost:5000/api/courses/${this.props.match.params.courseId}`, this.state.postData).then((response) => {
+    await axios.get(`http://localhost:5000/api/courses/${this.props.match.params.courseId}`).then((response) => {
       this.setState({
         courseData: response.data
       });
@@ -35,7 +45,7 @@ class UpdateCourse extends Component {
       this.getOwner(response.data.user);
 
     }).catch((error) => {
-      console.log('axios', error);
+      this.props.history.push('/error')
     }) 
   }
 

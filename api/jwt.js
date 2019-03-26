@@ -21,7 +21,7 @@ verifyToken = (token, $Options) => {
         issuer: $Options.issuer,
         subject: $Options.subject,
         audience: $Options.audience,
-        expiresIn: "1m",
+        expiresIn: "1d",
         algorithm: ["RS256"]
     }
     try {

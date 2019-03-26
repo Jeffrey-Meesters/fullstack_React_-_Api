@@ -16,7 +16,8 @@ class CourseDetails extends Component {
   }
 
   getOwner = (ownerId) => {
-    getData(true, `/owner/${ownerId}`).then((ownerData) => {
+    const cachedToken = localStorage.getItem('tucan');
+    getData(true, `/owner/${ownerId}`, cachedToken).then((ownerData) => {
       this.setState({
         ownerData: ownerData
       });
@@ -25,7 +26,8 @@ class CourseDetails extends Component {
 
 
   componentWillMount() {
-    getData(true, `/courses/${this.props.match.params.courseId}`).then((courseDetails) => {
+    const cachedToken = localStorage.getItem('tucan');
+    getData(true, `/courses/${this.props.match.params.courseId}`, cachedToken).then((courseDetails) => {
 
       let isOwner = false;
 
