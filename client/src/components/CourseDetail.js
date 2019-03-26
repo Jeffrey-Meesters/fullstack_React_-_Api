@@ -26,7 +26,7 @@ class CourseDetails extends Component {
 
   componentWillMount() {
     getData(true, `/courses/${this.props.match.params.courseId}`).then((courseDetails) => {
-      
+
       let isOwner = false;
       if (courseDetails.user[0] === this.props.userDetails.id) {
         isOwner = true;
@@ -38,7 +38,7 @@ class CourseDetails extends Component {
       });
 
       this.getOwner(courseDetails.user[0]);
-    
+
     })
   }
 
@@ -46,11 +46,13 @@ class CourseDetails extends Component {
     getData(false);
   }
 
-  deleteCourse = () => {
+  deleteCourse = (e) => {
+    e.preventDefault()
     if (this.state.isOwner) {
       const cachedToken = localStorage.getItem('tucan');
       deleteData(`/courses/${this.props.match.params.courseId}`, cachedToken).then((response) => {
         console.log(response)
+        this.props.history.push('/courses')
       })
     } else {
       // redirect to now allowed
@@ -66,7 +68,7 @@ class CourseDetails extends Component {
     console.log('owner', ownerData)
     if (this.state.isOwner) {
       updateLink = <Link className="button" to={`${this.props.match.url}/update`} >Update Course</Link>;
-      deleteLink = <a className="button" onClick={this.deleteCourse}> Delete Course </a>;
+      deleteLink = <Link className="button" to="/courses" onClick={this.deleteCourse}> Delete Course </Link>;
     }
 
     return (
