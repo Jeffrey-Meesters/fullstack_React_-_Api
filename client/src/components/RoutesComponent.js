@@ -151,7 +151,7 @@ class RoutesComponent extends Component {
 
         // if there is no cached token and the user is not already on /signin or signup
         // redirect user to signgin
-        } else if (this.props.history.location.pathname !== '/signin' && this.props.history.location.pathname !== '/signup') {
+        } else if (this.props.history.location.pathname !== '/signin' && this.props.history.location.pathname !== '/signup' && this.props.history.location.pathname !== '/courses' ) {
             // And reset state
             this.setState({
                 userOptions: {
@@ -240,7 +240,9 @@ class RoutesComponent extends Component {
                         } />
                         
                         <Route exact path={ `${url}/:courseId/detail/update` } render={
-                            (props) => <UpdateCourse {...props} userDetails={this.state.userOptions} /> 
+                            (props) => (this.state.isAuth) ?
+                            <UpdateCourse {...props} userDetails={this.state.userOptions} /> :
+                            <Redirect to="/signin" />
                         } />
                     </>
                     )}
