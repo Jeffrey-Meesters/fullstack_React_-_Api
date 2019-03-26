@@ -206,53 +206,80 @@ class RoutesComponent extends Component {
             localStorage.setItem(this.state.cachKey, data.token);
         }
     }
-
-    // I had some trouble figuring out nested routes within a switch
-    // found the solution here: https://stackoverflow.com/questions/41474134/nested-routes-with-react-router-v4
+    
+    // I found a HOC way to big for protected routes and decided to use a manner explained by react router 4 itself
+    // which basically (is a hoc but) is rendering a component based on a ternary operator which is based on if the user is authenticated or not
+    // look in the function PrivateRoute: https://reacttraining.com/react-router/web/example/auth-workflow
+    // The PrivateRoute is a HOC, but see the clean result I would have if I hadn't had to expplain myself, below
 
     render() {
         return (
             <div className="Router">
                 <Header userData={this.state.userOptions} isAuth={this.state.isAuth} history={ this.props.history}/>
                 <Switch>
-                <Redirect from="/" exact to="/courses" />
-                <Route
-                    path="/courses"
-                    render={({ match: { url } }) => (
-                    <>
-                        <Route exact path={ `${url}` } render={ () => <Courses history={ this.props.history } />} />
-                        
-                        {/* 
-                            This is a protected route
-                            When the user is authenticated render component
-                            Else render redirect component witch redirects to /signin
-                        
-                        */}
-                        
-                        <Route exact path={ `${url}/create` } render={
-                            (props) => (this.state.isAuth) ? 
-                            <CreateCourse {...props} history={ this.props.history } userDetails={this.state.userOptions} /> : 
-                            <Redirect to="/signin" /> 
-                        } />
-                        
-                        <Route exact path={ `${url}/:courseId/detail` } render={
-                            (props) => <CourseDetail {...props} userDetails={this.state.userOptions} /> 
-                        } />
-                        
-                        <Route exact path={ `${url}/:courseId/detail/update` } render={
-                            (props) => (this.state.isAuth) ?
-                            <UpdateCourse {...props} userDetails={this.state.userOptions} /> :
-                            <Redirect to="/signin" />
-                        } />
-                    </>
-                    )}
-                />
-                <Route exact path="/signin" render={() => <UserSignIn history={ this.props.history } isSignedIn={this.userSignIn} />} />
-                <Route exact path="/signup" render={() => <UserSignUp history={ this.props.history } />} />
-                <Route exact path="/signout" />
-                <Route exact path="/forbidden" component={Forbidden} />
-                <Route exact path="/error" component={UnhandledError} />
-                <Route component={NotFound} />
+                    {/* redirect root route to courses route */}
+                    <Redirect from="/" exact to="/courses" />
+
+                    {/* 
+                        I had some trouble figuring out nested routes within a switch
+                        found the solution here: https://stackoverflow.com/questions/41474134/nested-routes-with-react-router-v4 
+                    */}
+
+                    <Route
+                        path="/courses"
+                        render={({ match: { url } }) => (
+                        <>
+                            {/* Courses overview */}
+                            <Route exact path={ `${url}` } render={ () => <Courses history={ this.props.history } />} />
+                            
+                            {/* 
+                                Create course
+                                This is a protected route
+                                When the user is authenticated render component
+                                Else render redirect component witch redirects to /signin
+                                I could use a HOC, but this is cleaner
+                            */}
+                            
+                            <Route exact path={ `${url}/create` } render={
+                                (props) => (this.state.isAuth) ? 
+                                <CreateCourse {...props} history={ this.props.history } userDetails={this.state.userOptions} /> : 
+                                <Redirect to="/signin" /> 
+                            } />
+                            
+                            {/* Course details */}
+
+                            <Route exact path={ `${url}/:courseId/detail` } render={
+                                (props) => <CourseDetail {...props} userDetails={this.state.userOptions} /> 
+                            } />
+
+                            {/* 
+                                Update course
+                                This is a protected route
+                                When the user is authenticated render component
+                                Else render redirect component witch redirects to /signin
+                                I could use a HOC, but this is cleaner
+                            */}
+                            
+                            <Route exact path={ `${url}/:courseId/detail/update` } render={
+                                (props) => (this.state.isAuth) ?
+                                <UpdateCourse {...props} userDetails={this.state.userOptions} /> :
+                                <Redirect to="/signin" />
+                            } />
+                        </>
+                        )}
+                    />
+                    {/* Sign in */}
+                    <Route exact path="/signin" render={() => <UserSignIn history={ this.props.history } isSignedIn={this.userSignIn} />} />
+                    {/* Sign up */}
+                    <Route exact path="/signup" render={() => <UserSignUp history={ this.props.history } />} />
+                    {/* logout */}
+                    <Route exact path="/signout" />
+                    {/* forbidden route */}
+                    <Route exact path="/forbidden" component={Forbidden} />
+                    {/* route for errors */}
+                    <Route exact path="/error" component={UnhandledError} />
+                    {/* When no route matches show not found component */}
+                    <Route component={NotFound} />
                 </Switch>
             </div>
         )
