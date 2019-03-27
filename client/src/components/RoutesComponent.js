@@ -5,6 +5,7 @@ import {
     Redirect,
 }                           from 'react-router-dom';
 
+
 import Header               from '../elements/Header';
 import Courses              from './Courses';
 import CreateCourse         from './CreateCourse';
@@ -31,13 +32,6 @@ class RoutesComponent extends Component {
     }
 
     // The route listener is the key in my user authentication
-    // I had some memory leaks because state was being set on components that where already dismounted
-    // I've been searching hard to find solutions for this and came across an anti-pattern that basically did:
-    // set a state value to true on component did mount and to false on component unmount. Use that boolean to determine if state in an async cal should be set.
-    // I used that pattern in Courses.js
-    // By a lot of trial and error I found my own solution: Give every call when called a true or false value.
-    // True whenever normal calling behaviour should accour, false when the component unmounts, which calls the function but does nothing
-    // This resulted in not having a no-op memory leak warning anymore.
     routeListner = (shouldListen) => {
         // first get history passed in the props (fram app.js)
         const history = this.props.history;
@@ -48,7 +42,7 @@ class RoutesComponent extends Component {
             history.listen((location) => {
                 // get the cached token. The name of the token is in state
                 const cachedToken = localStorage.getItem(this.state.cachKey);
-                
+
                 // If there is no cached token, and the current route is not signin
                 if(!cachedToken && location.pathname !== '/signin' && location.pathname !== '/signup' && location.pathname !== '/courses' && location.pathname !== '/forbidden') {
                     // set previous path to /signin and redirect to signin
@@ -64,11 +58,11 @@ class RoutesComponent extends Component {
                         previousePath: '/forbidden',
                         isAuth: false,
                     })
-                    
+
                     this.props.history.push('/forbidden')
                     return;
                 }
-                
+
                 if (cachedToken && location.pathname !== this.state.previousePath) {
                     // If current route does not equal the previouse path check if the user is allowed to access.
 
@@ -76,13 +70,13 @@ class RoutesComponent extends Component {
                     // It receives a boolean first for the same reason described above with the routeListner
                     // send the cachedToken and the cache Key.
                     checkAuth(true, cachedToken, this.state.cachKey).then((isAuth) => {
-  
+
                         // isAuth is a boolean
                         this.setState({
                             isAuth: isAuth,
                             previousePath: location.pathname
                         })
-                        
+
                         // If user is not correctly authenticated
                         // redirect to the sign in screen
                         // any JWT in storage is removed by checkAuth
@@ -104,10 +98,10 @@ class RoutesComponent extends Component {
                 }
             })
         } else {
-            
+
             // Component did unmount so empty listener
             history.listen();
-        
+
         }
     }
 
@@ -134,7 +128,7 @@ class RoutesComponent extends Component {
         if (cachedToken) {
             // check is the user is authenticated
             checkAuth(true, cachedToken, this.state.cachKey).then((isAuth) => {
-  
+
                 this.setState({
                     isAuth: isAuth,
                     previousePath: this.props.history.location.pathname
@@ -162,10 +156,10 @@ class RoutesComponent extends Component {
                 },
                 isAuth: false,
             })
-            
+
             this.props.history.push('/signin')
         }
-        
+
         // Initiate routeListner
         this.routeListner(true);
     }
@@ -176,7 +170,7 @@ class RoutesComponent extends Component {
         // Clear routeListner
         this.routeListner(false);
     }
-    
+
     userSignIn = (data) => {
         // receives data from the UserSignIn child component
         // when the user correctly authenticates by form submit
@@ -192,7 +186,7 @@ class RoutesComponent extends Component {
                 },
                 isAuth: true
             })
-      
+
             // I store it in state so it persist when refreshing the page
             // The apps state would be reseted on refresh
             // To set an object in storage you need to stringify it else it will be an [Object Object]
@@ -206,7 +200,7 @@ class RoutesComponent extends Component {
             localStorage.setItem(this.state.cachKey, data.token);
         }
     }
-    
+
     // I found a HOC way to big for protected routes and decided to use a manner explained by react router 4 itself
     // which basically (is a hoc but) is rendering a component based on a ternary operator which is based on if the user is authenticated or not
     // look in the function PrivateRoute: https://reacttraining.com/react-router/web/example/auth-workflow
@@ -220,9 +214,9 @@ class RoutesComponent extends Component {
                     {/* redirect root route to courses route */}
                     <Redirect from="/" exact to="/courses" />
 
-                    {/* 
+                    {/*
                         I had some trouble figuring out nested routes within a switch
-                        found the solution here: https://stackoverflow.com/questions/41474134/nested-routes-with-react-router-v4 
+                        found the solution here: https://stackoverflow.com/questions/41474134/nested-routes-with-react-router-v4
                     */}
 
                     <Route
@@ -231,35 +225,35 @@ class RoutesComponent extends Component {
                         <>
                             {/* Courses overview */}
                             <Route exact path={ `${url}` } render={ () => <Courses history={ this.props.history } />} />
-                            
-                            {/* 
+
+                            {/*
                                 Create course
                                 This is a protected route
                                 When the user is authenticated render component
                                 Else render redirect component witch redirects to /signin
                                 I could use a HOC, but this is cleaner
                             */}
-                            
+
                             <Route exact path={ `${url}/create` } render={
-                                (props) => (this.state.isAuth) ? 
-                                <CreateCourse {...props} history={ this.props.history } userDetails={this.state.userOptions} /> : 
-                                <Redirect to="/signin" /> 
+                                (props) => (this.state.isAuth) ?
+                                <CreateCourse {...props} history={ this.props.history } userDetails={this.state.userOptions} /> :
+                                <Redirect to="/signin" />
                             } />
-                            
+
                             {/* Course details */}
 
                             <Route exact path={ `${url}/:courseId/detail` } render={
-                                (props) => <CourseDetail {...props} userDetails={this.state.userOptions} /> 
+                                (props) => <CourseDetail {...props} userDetails={this.state.userOptions} />
                             } />
 
-                            {/* 
+                            {/*
                                 Update course
                                 This is a protected route
                                 When the user is authenticated render component
                                 Else render redirect component witch redirects to /signin
                                 I could use a HOC, but this is cleaner
                             */}
-                            
+
                             <Route exact path={ `${url}/:courseId/detail/update` } render={
                                 (props) => (this.state.isAuth) ?
                                 <UpdateCourse {...props} userDetails={this.state.userOptions} /> :
