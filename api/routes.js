@@ -104,19 +104,17 @@ router.get('/users', authenticateUser, (req, res, next) => {
 // GET /users
 // Route for getting current user/owner
 // authenticateUser: user should be authenticated before this middleware executes
-router.get('/owner/:ownerId', readToken, (req, res, next) => {
-    if (req.tokenIsGood) {
-        User.findById(req.params.ownerId, (error, owner) => {
-            if (error) {
-                console.warn('error in DB search', error);
-                res.status(401).json({message: 'Owner not found'})
-            }
+router.get('/owner/:ownerId', (req, res, next) => {
+    User.findById(req.params.ownerId, (error, owner) => {
+        if (error) {
+            console.warn('error in DB search', error);
+            res.status(401).json({message: 'Owner not found'})
+        }
 
-            if (owner) {
-                res.status(200).json(owner)
-            }
-        })
-    }
+        if (owner) {
+            res.status(200).json(owner)
+        }
+    })
 });
 
 // POST /users

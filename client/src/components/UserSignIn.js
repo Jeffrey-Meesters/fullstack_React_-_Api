@@ -23,7 +23,7 @@ class UserSignIn extends Component {
     const target = e.target.id;
     // on input store the value of the current element
     const value = e.target.value;
-    
+
     // switch to determin which inputfield the user is typing in
     switch(target) {
       // in case it is id emailAddress set that state
@@ -75,7 +75,6 @@ class UserSignIn extends Component {
         token: response.data.jwtToken
       })
       // redirect to the courses
-      this.props.history.push('/courses')
     }).catch((error) => {
 
       console.log(error)
@@ -95,11 +94,11 @@ class UserSignIn extends Component {
       // if the current item is empty store an error
       if (formInput[item] === '') {
         errors.push({
-          [item]: `${item} is not filled in` 
+          [item]: `${item} is not filled in`
         })
       }
     })
-    
+
     // Set the errors in component state
     // do that while keeping previous state
     this.setState( prevState => ({
