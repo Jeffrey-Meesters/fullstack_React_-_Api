@@ -1,0 +1,30 @@
+{
+  "name": "full_stack_app_with_react_and_a_rest_api-v1",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "dependencies": {
+    "axios": "^0.18.0",
+    "prop-types": "^15.7.2",
+    "react-axios": "^2.0.3"
+  },
+  "devDependencies": {
+    "concurrently": "^4.1.0"
+  },
+  "scripts": {
+    "start": "concurrently 'npm run react' 'npm run api'",
+    "api": "cd ./api && npm start",
+    "react": "cd ./client && npm start",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Jeffrey-Meesters/fullstack_React_-_Api.git"
+  },
+  "author": "Jeffrey Meesters",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Jeffrey-Meesters/fullstack_React_-_Api/issues"
+  },
+  "homepage": "https://github.com/Jeffrey-Meesters/fullstack_React_-_Api#readme"
+}
