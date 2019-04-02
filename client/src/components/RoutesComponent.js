@@ -75,32 +75,32 @@ class RoutesComponent extends Component {
                     // checkout is defined in the helpers/checkout.js file.
                     // It receives a boolean first for the same reason described above with the routeListner
                     // send the cachedToken and the cache Key.
-                    checkAuth(true, cachedToken, this.state.cachKey).then((isAuth) => {
+                    // checkAuth(true, cachedToken, this.state.cachKey).then((isAuth) => {
 
-                        // isAuth is a boolean
-                        this.setState({
-                            isAuth: isAuth,
-                            previousePath: location.pathname
-                        })
+                    //     // isAuth is a boolean
+                    //     this.setState({
+                    //         isAuth: isAuth,
+                    //         previousePath: location.pathname
+                    //     })
 
-                        // If user is not correctly authenticated
-                        // redirect to the sign in screen
-                        // any JWT in storage is removed by checkAuth
-                        if (!isAuth) {
-                            // And reset state
-                            this.setState({
-                                userOptions: {
-                                    userId: '',
-                                    firstName: '',
-                                    lastName: '',
-                                    token: ''
-                                }
-                            })
+                    //     // If user is not correctly authenticated
+                    //     // redirect to the sign in screen
+                    //     // any JWT in storage is removed by checkAuth
+                    //     if (!isAuth) {
+                    //         // And reset state
+                    //         this.setState({
+                    //             userOptions: {
+                    //                 userId: '',
+                    //                 firstName: '',
+                    //                 lastName: '',
+                    //                 token: ''
+                    //             }
+                    //         })
 
-                            this.props.history.push('/signin')
-                        }
+                    //         this.props.history.push('/signin')
+                    //     }
 
-                    });
+                    // });
                 }
             })
         } else {
@@ -209,6 +209,15 @@ class RoutesComponent extends Component {
         }
     }
 
+    saveToGlobalState = (data) => {
+        if (data) {
+            this.setState({
+                isAuth: data.isAuth,
+                previousePath: data.previousePath
+            })
+        }
+    }
+
     // I found a HOC way to big for protected routes and decided to use a manner explained by react router 4 itself
     // which basically (is a hoc but) is rendering a component based on a ternary operator which is based on if the user is authenticated or not
     // look in the function PrivateRoute: https://reacttraining.com/react-router/web/example/auth-workflow
@@ -244,7 +253,7 @@ class RoutesComponent extends Component {
 
                             <Route exact path={ `${url}/create` } render={
                                 (props) => (this.state.isAuth) ?
-                                <CreateCourse {...props} history={ this.props.history } userDetails={this.state.userOptions} /> :
+                                <CreateCourse {...props} history={ this.props.history } saveState={this.saveToGlobalState} userDetails={this.state.userOptions} /> :
                                 <Redirect to="/signin" />
                             } />
 
@@ -264,7 +273,7 @@ class RoutesComponent extends Component {
 
                             <Route exact path={ `${url}/:courseId/detail/update` } render={
                                 (props) => (this.state.isAuth) ?
-                                <UpdateCourse {...props} userDetails={this.state.userOptions} /> :
+                                <UpdateCourse {...props} userDetails={this.state.userOptions} saveState={this.saveToGlobalState}/> :
                                 <Redirect to="/signin" />
                             } />
                         </>

@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import axios                from 'axios';
 
+import { checkAuth }        from '../helpers/checkAuth'
 import CourseForm           from './courseForm';
 
 class UpdateCourse extends Component {
@@ -31,22 +32,55 @@ class UpdateCourse extends Component {
       });
     }).catch((error) => {
       this.props.history.push('/error')
-    }) 
+    })
   }
 
-  async componentWillMount() {
-    // Get requested course data
-    await axios.get(`http://localhost:5000/api/courses/${this.props.match.params.courseId}`).then((response) => {
-      this.setState({
-        courseData: response.data
-      });
-      
-      // get course owner data with owner id
-      this.getOwner(response.data.user);
+  componentWillMount() {
+    const cachedToken = localStorage.getItem('tucan');
+    if (cachedToken) {
 
-    }).catch((error) => {
-      this.props.history.push('/error')
-    }) 
+      checkAuth(true, cachedToken, 'tucan').then((isAuth) => {
+
+          // isAuth is a boolean
+          this.props.saveState({
+              isAuth: isAuth,
+              previousePath: this.props.history.pathName
+          })
+
+        // Get requested course data
+        axios.get(`http://localhost:5000/api/courses/${this.props.match.params.courseId}`).then((response) => {
+          this.setState({
+            courseData: response.data
+          });
+
+          // get course owner data with owner id
+          this.getOwner(response.data.user);
+
+        }).catch((error) => {
+          this.props.history.push('/error')
+        })
+
+          // If user is not correctly authenticated
+          // redirect to the sign in screen
+          // any JWT in storage is removed by checkAuth
+          if (!isAuth) {
+              // And reset state
+              this.setState({
+                  userOptions: {
+                      userId: '',
+                      firstName: '',
+                      lastName: '',
+                      token: ''
+                  }
+              })
+
+              this.props.history.push('/signin')
+          }
+
+      });
+    } else {
+      this.props.history.push('/forbidden')
+    }
   }
 
   // pass all fetched data down to CourseForm
