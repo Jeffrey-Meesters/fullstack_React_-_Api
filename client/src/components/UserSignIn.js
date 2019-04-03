@@ -67,7 +67,6 @@ class UserSignIn extends Component {
       // isSignedIn is a method call in the parent (RoutesComponent)
       // So the auth state is hoisted to the component that has all the routes
       this.props.isSignedIn({
-        loading: false,
         id: response.data.currentUser._id,
         userMail: response.data.currentUser.emailAddress,
         firstName: response.data.currentUser.firstName,
@@ -75,9 +74,9 @@ class UserSignIn extends Component {
         token: response.data.jwtToken
       })
       // redirect to the courses
-    }).catch((error) => {
+    }).catch(() => {
 
-      console.log(error)
+      this.props.history.push('/error')
 
     })
   }
