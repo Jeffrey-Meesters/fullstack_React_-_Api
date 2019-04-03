@@ -69,7 +69,7 @@ router.param("id", (req, res, next, id) => {
 
 router.get('/tokenAuth', readToken, (req, res, next) => {
     if (req.tokenIsGood) {
-        res.sendStatus(200)
+        res.status(200).json({data: req.tokenIsGood})
     } else {
         // just to be sure, the readToken should've done this already
         res.status(403).json({message: 'Could not get Auth token'});

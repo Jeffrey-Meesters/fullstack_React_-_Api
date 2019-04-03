@@ -70,12 +70,11 @@ class UserSignUp extends Component {
     }
 
     // Send data to the api to create an user
-    await axios.post(`http://localhost:5000/api/users`, postData).then((response) => {
-      console.log(response)
-    }).catch((error) => {
+    await axios.post(`http://localhost:5000/api/users`, postData).then(() => {
+    }).catch(() => {
       this.props.history.push('/error')
     })
- 
+
   }
 
   validateForm = () => {
@@ -89,7 +88,7 @@ class UserSignUp extends Component {
     Object.keys(formInput).forEach((item) => {
       if (formInput[item] === '') {
         errors.push({
-          [item]: `${item} is not filled in` 
+          [item]: `${item} is not filled in`
         })
       }
     })
@@ -101,7 +100,7 @@ class UserSignUp extends Component {
         confirmError: 'Passwords don\'t match'
       })
     }
-    
+
     // Update error state and keep previous state
     this.setState( prevState => ({
       formErrors: {...prevState.formErrors, errors}

@@ -28,7 +28,7 @@ export async function checkAuth(shouldCheck, cachedToken, key) {
                 // when the call is done check if the response status is 200
                 // 200 = OK, so proceed else return false
                 if (response.status === 200) {
-                    return true;
+                    return {auth: true, data: response.data};
                 } else {
                     removeToken(key)
                     return false;
@@ -47,7 +47,7 @@ export async function checkAuth(shouldCheck, cachedToken, key) {
         } else {
             // If component unmounts return false
             return false;
-            
+
         }
     }
 

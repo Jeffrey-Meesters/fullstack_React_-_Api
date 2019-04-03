@@ -8,29 +8,22 @@ class UpdateCourse extends Component {
   constructor(props) {
     super(props)
     this.state = {
-      loading: false,
       courseData: [],
       ownerData: []
     }
   }
 
   async getOwner(ownerId) {
-    const cachedToken = localStorage.getItem('tucan');
-    await axios.get(`http://localhost:5000/api/owner/${ownerId}`, {
-      headers: {
-        'x-access-token': cachedToken
-      }
-    }).then((response) => {
+    await axios.get(`http://localhost:5000/api/owner/${ownerId}`).then((response) => {
 
       if (this.props.userDetails.id !== response.data._id) {
         this.props.history.push('/forbidden');
         return;
       }
       this.setState({
-        loading: false,
         ownerData: response.data
       });
-    }).catch((error) => {
+    }).catch(() => {
       this.props.history.push('/error')
     })
   }
@@ -56,7 +49,7 @@ class UpdateCourse extends Component {
           // get course owner data with owner id
           this.getOwner(response.data.user);
 
-        }).catch((error) => {
+        }).catch(() => {
           this.props.history.push('/error')
         })
 
@@ -64,17 +57,7 @@ class UpdateCourse extends Component {
           // redirect to the sign in screen
           // any JWT in storage is removed by checkAuth
           if (!isAuth) {
-              // And reset state
-              this.setState({
-                  userOptions: {
-                      userId: '',
-                      firstName: '',
-                      lastName: '',
-                      token: ''
-                  }
-              })
-
-              this.props.history.push('/signin')
+              this.props.history.push('/forbidden')
           }
 
       });

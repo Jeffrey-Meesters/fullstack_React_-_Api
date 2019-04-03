@@ -27,21 +27,24 @@ class CourseDetails extends Component {
   componentWillMount() {
     getData(true, `/courses/${this.props.match.params.courseId}`, false).then((courseDetails) => {
       let isOwner = false;
-      if (courseDetails.user) {
-        
+      if (courseDetails.user && this.props.userDetails) {
+
         if (courseDetails.user[0] === this.props.userDetails.id) {
           isOwner = true;
         }
-  
+
         this.setState({
           courseData: courseDetails,
           isOwner: isOwner
         });
-  
+
         this.getOwner(courseDetails.user[0]);
-  
+
       } else {
-        this.props.history.push('/notfound')
+        this.setState({
+          courseData: courseDetails,
+          isOwner: false
+        });
       }
     })
   }
