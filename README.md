@@ -73,3 +73,6 @@ The fields in which you find the key tell you if it is private or public, store 
 - State is kept 1 component deeper from 'app' and local storage, because I've been refectoring a lot I ended up putting it there, in hindside,
 that code could also have been in 'app', but don't feel like switching it.
 - I've used Jason Web Tokens to do the authentication part for the exceeds expectations
+
+
+Arctic
